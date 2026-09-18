@@ -1,0 +1,6 @@
+:root { font-family: 'DM Sans', sans-serif; color: #eef5ff; background: #080d1f; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; overflow-y: scroll; scrollbar-gutter: stable; }
+html, body, #root { width: 100%; min-height: 100%; overflow-x: hidden; background: #080d1f; }
+body { margin: 0; min-width: 320px; }
+a { color: inherit; }
