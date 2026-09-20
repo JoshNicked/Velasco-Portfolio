@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import portfolioPic from './assets/portfolio_pic.jpg'
 import cvFile from './assets/Velasco CV.pdf'
+import JellyRadio from './JellyRadio'
 import './App.css'
 
 const nameWords = 'Joshuaa Nickk Velasco'
@@ -19,14 +20,63 @@ const comets = [
   { id: 3, '--left': '58%', '--top': '62%', '--delay': '7s', '--duration': '13s' },
 ]
 
+const navItems = [
+  { value: 'top', label: 'Home' },
+  { value: 'about', label: 'About Me' },
+  { value: 'achievements', label: 'Achievements' },
+  { value: 'experience', label: 'Experience' },
+  { value: 'work', label: 'Projects' },
+  { value: 'contact', label: 'Contact' },
+]
+
+const stackGroups = [
+  {
+    label: 'Technologies & tools',
+    items: [
+      ['GitHub'], ['React'], ['Vite'], ['Flutter'], ['MongoDB'], ['Visual Studio Code'],
+    ],
+  },
+  {
+    label: 'Programming languages',
+    items: [
+      ['Python'], ['Java'], ['JavaScript'], ['C#'], ['Dart'], ['Kotlin'],
+    ],
+  },
+  {
+    label: 'Skills',
+    items: [
+      ['Adaptable'], ['Punctual'], ['Efficient'], ['Cooperative'], ['Team-Oriented'], ['Responsible'],
+    ],
+  },
+]
+
+function StackCarousel({ label, items }) {
+  return (
+    <div className="stack-group">
+      <p className="stack-label">{label}</p>
+      <div className="stack-space" aria-label={`${label} carousel`}>
+        <div className="stack-carousel-track">
+          {[...items, ...items].map(([name], index) => (
+            <span className="stack-item" key={`${name}-${index}`}>
+              <span className="stack-item-name">{name}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function App() {
   const [typingComplete, setTypingComplete] = useState(false)
   const [portraitVisible, setPortraitVisible] = useState(false)
   const [typedWords, setTypedWords] = useState(() => nameParts.map(() => ''))
+  const [typingWordIndex, setTypingWordIndex] = useState(0)
   const [visibleSections, setVisibleSections] = useState([])
   const [cvModalOpen, setCvModalOpen] = useState(false)
   const [cvModalClosing, setCvModalClosing] = useState(false)
   const [topbarVisible, setTopbarVisible] = useState(false)
+  const [activeNav, setActiveNav] = useState('top')
   const heroRef = useRef(null)
 
   const openCvModal = () => {
@@ -42,9 +92,16 @@ function App() {
     }, 220)
   }
 
-  const handleHomeClick = (event) => {
-    event.preventDefault()
-    if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: 'smooth' })
+  const handleNavChange = (value) => {
+    setActiveNav(value)
+    const target = document.getElementById(value)
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' })
+    } else if (value === 'top') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      window.location.hash = value === 'work' ? 'projects' : value
+    }
   }
 
   useEffect(() => {
@@ -68,6 +125,7 @@ function App() {
         } else {
           wordIndex += 1
           characterIndex = 0
+          setTypingWordIndex(wordIndex)
         }
       }
     }, 110)
@@ -104,14 +162,39 @@ function App() {
     return () => observer.disconnect()
   }, [])
 
+  useEffect(() => {
+    const observedSections = [
+      { id: 'top', element: heroRef.current },
+      { id: 'about', element: document.getElementById('about') },
+      { id: 'achievements', element: document.getElementById('achievements') },
+      { id: 'work', element: document.getElementById('work') },
+      { id: 'contact', element: document.getElementById('contact') },
+    ].filter((section) => section.element)
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((first, second) => second.intersectionRatio - first.intersectionRatio)
+
+      if (visible[0]) {
+        const current = observedSections.find((section) => section.element === visible[0].target)
+        if (current) setActiveNav(current.id)
+      }
+    }, { threshold: [0.2, 0.5, 0.8], rootMargin: '-18% 0px -45% 0px' })
+
+    observedSections.forEach((section) => observer.observe(section.element))
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <main id="top">
       <nav className={`floating-topbar ${topbarVisible ? 'is-visible' : ''}`} aria-label="Main navigation" aria-hidden={!topbarVisible}>
-        <a href="#top" onClick={handleHomeClick} tabIndex={topbarVisible ? 0 : -1}>Home</a>
-        <a href="#about" tabIndex={topbarVisible ? 0 : -1}>About Me</a>
-        <a href="#achievements" tabIndex={topbarVisible ? 0 : -1}>Achievements</a>
-        <a href="#work" tabIndex={topbarVisible ? 0 : -1}>Projects</a>
-        <a href="#contact" tabIndex={topbarVisible ? 0 : -1}>Contact</a>
+        <JellyRadio
+          items={navItems}
+          value={activeNav}
+          onChange={handleNavChange}
+          ariaLabel="Main navigation"
+        />
       </nav>
       <div className="space-field" aria-hidden="true">
         {stars.map((star) => <i className="star" key={star.id} style={star} />)}
@@ -128,10 +211,15 @@ function App() {
             />
           </div>
           <div className="intro-copy">
-            <p className="eyebrow"> qa tester + frontend developer</p>
+            <p className="eyebrow"> qa tester + frontend developer + software developer</p>
             <h1>
               {typedWords.map((word, index) => (
-                <span className="name-line" key={nameParts[index]}>{word}</span>
+                <span className="name-line" key={nameParts[index]}>
+                  {word}
+                  {((!typingComplete && index === typingWordIndex) || (typingComplete && index === nameParts.length - 1)) && (
+                    <span className={`typing-cursor ${typingComplete ? 'is-final' : ''}`} aria-hidden="true" />
+                  )}
+                </span>
               ))}
             </h1>
             <div className="hero-social-links" aria-label="Social links">
@@ -151,22 +239,53 @@ function App() {
       </section>
 
       <section className={`about-section ${visibleSections.includes('about') ? 'is-revealed' : ''}`} id="about" data-reveal="about">
-        <span id="achievements" className="anchor-target" aria-hidden="true" />
         <div className="section-heading"><p className="eyebrow">about me</p></div>
         <div className="about-grid">
-          <h2>I’m a passionate <b>Frontend Developer</b> who enjoys solving problems, creating aesthetically pleasing user interfaces and easy to understand user experiences.</h2>
+          <h2>I’m a passionate Developer who enjoys solving problems, creating aesthetically pleasing user interfaces and easy to understand user experiences.</h2>
           <div className="about-details">
-            <p>I build thoughtful digital experiences with an eye for clarity, interaction, and the small details that make products feel human.</p>
+            <p>I keep on learning, improving and exploring new technologies.</p>
             <div className="tech-stack-area">
-              <div className="stack-group">
-                <p className="stack-label">Technologies &amp; tools</p>
-                <div className="stack-space" aria-label="Space for technologies and tools" />
-              </div>
-              <div className="stack-group">
-                <p className="stack-label">Programming languages</p>
-                <div className="stack-space" aria-label="Space for programming languages" />
-              </div>
+              {stackGroups.map((group) => <StackCarousel key={group.label} {...group} />)}
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className={`achievements-section ${visibleSections.includes('achievements') ? 'is-revealed' : ''}`} id="achievements" data-reveal="achievements">
+        <div className="achievements-inner">
+          <div className="section-heading"><p className="eyebrow">Achievements</p><span>(03)</span></div>
+          <div className="achievement-list">
+            <article className="achievement-item">
+              <span className="achievement-number">01</span>
+              <div><h2>Continuous learner</h2><p>Always exploring new tools, frameworks, and better ways to build.</p></div>
+              <span className="achievement-year">Learning</span>
+            </article>
+            <article className="achievement-item">
+              <span className="achievement-number">02</span>
+              <div><h2>Problem solver</h2><p>Turning complex requirements into clear and practical digital experiences.</p></div>
+              <span className="achievement-year">Craft</span>
+            </article>
+            <article className="achievement-item">
+              <span className="achievement-number">03</span>
+              <div><h2>Team contributor</h2><p>Working responsibly and cooperatively toward reliable results.</p></div>
+              <span className="achievement-year">People</span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section className={`experience-section ${visibleSections.includes('experience') ? 'is-revealed' : ''}`} id="experience" data-reveal="experience">
+        <div className="experience-inner">
+          <div className="section-heading"><p className="eyebrow">Experience</p><span>(02)</span></div>
+          <div className="experience-list">
+            <article className="experience-item">
+              <div className="experience-role"><span className="experience-period">Present</span><h2>Frontend Developer</h2></div>
+              <p>Building responsive interfaces, refining interactions, and turning ideas into clear digital experiences.</p>
+            </article>
+            <article className="experience-item">
+              <div className="experience-role"><span className="experience-period">Growing</span><h2>QA Tester</h2></div>
+              <p>Testing workflows carefully, finding edge cases, and helping products become more reliable for people.</p>
+            </article>
           </div>
         </div>
       </section>
@@ -175,7 +294,7 @@ function App() {
         <div className={`cv-modal-backdrop ${cvModalClosing ? 'is-closing' : ''}`} role="presentation" onClick={closeCvModal}>
           <div className={`cv-modal ${cvModalClosing ? 'is-closing' : ''}`} role="dialog" aria-modal="true" aria-labelledby="cv-modal-title" onClick={(event) => event.stopPropagation()}>
             <button className="cv-modal-close" type="button" onClick={closeCvModal} aria-label="Close dialog">&times;</button>
-            <h2 id="cv-modal-title">Are you sure you want to download the CV</h2>
+            <h2 id="cv-modal-title">Are you sure you want to download my CV?</h2>
             <div className="cv-modal-actions">
               <button className="cv-modal-button cv-modal-button-secondary" type="button" onClick={closeCvModal}>No</button>
               <a className="cv-modal-button cv-modal-button-primary" href={cvFile} download="Velasco CV.pdf" onClick={closeCvModal}>Yes</a>

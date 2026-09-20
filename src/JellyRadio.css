@@ -1,0 +1,91 @@
+.jelly-radio {
+  display: inline-flex;
+  max-width: calc(100vw - 28px);
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  overflow-x: auto;
+  border: 1px solid rgba(163, 190, 231, .2);
+  border-radius: 999px;
+  background: rgba(8, 13, 31, .42);
+  box-shadow: 0 15px 42px rgba(0, 0, 0, .2), inset 0 1px 0 rgba(255, 255, 255, .08);
+  backdrop-filter: blur(18px) saturate(1.15);
+  scrollbar-width: none;
+}
+
+.jelly-radio::-webkit-scrollbar {
+  display: none;
+}
+
+.jelly-radio__chip {
+  position: relative;
+  display: inline-flex;
+  min-height: 36px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 18px;
+  color: #eef5ff;
+  background: transparent;
+  cursor: pointer;
+  font: 500 12px 'DM Sans', sans-serif;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color .2s ease, transform .2s ease;
+}
+
+.jelly-radio__chip:hover {
+  color: #ff9b70;
+  transform: translateY(-1px);
+}
+
+.jelly-radio__chip:focus-visible {
+  outline: 2px solid #ff9b70;
+  outline-offset: 2px;
+}
+
+.jelly-radio__chip:disabled {
+  cursor: default;
+  opacity: .5;
+}
+
+.jelly-radio__active {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(245, 245, 245, .92);
+}
+
+.jelly-radio__label {
+  position: relative;
+  z-index: 1;
+}
+
+.jelly-radio__chip[aria-checked='true'] {
+  color: #18181b;
+  cursor: default;
+}
+
+@media (max-width: 700px) {
+  .jelly-radio {
+    gap: 2px;
+    padding: 4px;
+  }
+
+  .jelly-radio__chip {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 9px;
+    letter-spacing: .03em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jelly-radio__chip {
+    transition: none;
+  }
+}
