@@ -1,15 +1,17 @@
-.jelly-radio {
+﻿.jelly-radio {
   display: inline-flex;
-  max-width: calc(100vw - 28px);
+  max-width: calc(100vw - 1.75rem);
   align-items: center;
-  gap: 6px;
-  padding: 6px;
+  gap: 0.375rem;
+  padding: 0.375rem;
   overflow-x: auto;
-  border: 1px solid rgba(163, 190, 231, .2);
-  border-radius: 999px;
-  background: rgba(8, 13, 31, .42);
-  box-shadow: 0 15px 42px rgba(0, 0, 0, .2), inset 0 1px 0 rgba(255, 255, 255, .08);
-  backdrop-filter: blur(18px) saturate(1.15);
+  border: 0.0625rem solid rgba(163, 190, 231, 0.2);
+  border-radius: 62.4375rem;
+  background: rgba(8, 13, 31, 0.42);
+  box-shadow:
+    0 0.9375rem 2.625rem rgba(0, 0, 0, 0.2),
+    inset 0 0.0625rem 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(1.125rem) saturate(1.15);
   scrollbar-width: none;
 }
 
@@ -20,36 +22,40 @@
 .jelly-radio__chip {
   position: relative;
   display: inline-flex;
-  min-height: 36px;
+  min-height: 2.25rem;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  padding: 0 16px;
+  padding: 0 1rem;
   border: 0;
-  border-radius: 18px;
+  border-radius: 1.125rem;
   color: #eef5ff;
   background: transparent;
   cursor: pointer;
-  font: 500 12px 'DM Sans', sans-serif;
-  letter-spacing: .06em;
+  font:
+    500 0.75rem "DM Sans",
+    sans-serif;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
-  transition: color .2s ease, transform .2s ease;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .jelly-radio__chip:hover {
   color: #ff9b70;
-  transform: translateY(-1px);
+  transform: translateY(-0.0625rem);
 }
 
 .jelly-radio__chip:focus-visible {
-  outline: 2px solid #ff9b70;
-  outline-offset: 2px;
+  outline: 0.125rem solid #ff9b70;
+  outline-offset: 0.125rem;
 }
 
 .jelly-radio__chip:disabled {
   cursor: default;
-  opacity: .5;
+  opacity: 0.5;
 }
 
 .jelly-radio__active {
@@ -57,7 +63,7 @@
   z-index: 0;
   inset: 0;
   border-radius: inherit;
-  background: rgba(245, 245, 245, .92);
+  background: rgba(245, 245, 245, 0.92);
 }
 
 .jelly-radio__label {
@@ -65,22 +71,22 @@
   z-index: 1;
 }
 
-.jelly-radio__chip[aria-checked='true'] {
+.jelly-radio__chip[aria-checked="true"] {
   color: #18181b;
   cursor: default;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 43.75rem) {
   .jelly-radio {
-    gap: 2px;
-    padding: 4px;
+    gap: 0.125rem;
+    padding: 0.25rem;
   }
 
   .jelly-radio__chip {
-    min-height: 32px;
-    padding: 0 10px;
-    font-size: 9px;
-    letter-spacing: .03em;
+    min-height: 2rem;
+    padding: 0 0.625rem;
+    font-size: 0.5625rem;
+    letter-spacing: 0.03em;
   }
 }
 

@@ -1,0 +1,132 @@
+.flip-card {
+  --fc-w: 20rem;
+  --fc-h: 20rem;
+  --fc-radius: 1.375rem;
+  --fc-bg: #111a39;
+  --fc-ink: #eef5ff;
+  position: relative;
+  display: inline-block;
+  width: min(var(--fc-w), 100%);
+  height: var(--fc-h);
+  perspective: 68.75rem;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  outline: none;
+  transition: transform 0.28s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .flip-card:hover {
+    transform: scale(1.03);
+  }
+}
+
+.flip-card:focus-visible {
+  outline: 0.125rem solid var(--coral);
+  outline-offset: 0.25rem;
+}
+
+.flip-card__rotor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.flip-card__face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow: hidden;
+  align-items: stretch;
+  border: 0.0625rem solid rgba(163, 190, 231, 0.28);
+  border-radius: var(--fc-radius);
+  background: var(--fc-bg);
+  color: var(--fc-ink);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.22);
+}
+
+.flip-card__face--back {
+  transform: rotateY(180deg);
+}
+
+.flip-card__content {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2.5rem;
+}
+
+.flip-card__eyebrow {
+  margin: 0;
+  color: var(--coral);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.flip-card__content h3 {
+  margin: 1rem 0 0.75rem;
+  font:
+    500 clamp(1.75rem, 3vw, 2.75rem)/1.05 Calibri,
+    "Segoe UI",
+    sans-serif;
+}
+
+.flip-card__content p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.flip-card__hint {
+  margin-top: 1.5rem !important;
+  color: var(--ink) !important;
+  font-size: 0.6875rem !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.flip-card__list {
+  display: grid;
+  gap: 0.875rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flip-card__list li {
+  padding-bottom: 0.75rem;
+  border-bottom: 0.0625rem solid rgba(163, 190, 231, 0.2);
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.flip-card__list li:last-child {
+  border-bottom: 0;
+}
+
+@media (max-width: 43.75rem) {
+  .flip-card {
+    width: 100%;
+    height: min(20rem, 72vw);
+    min-height: 17rem;
+  }
+
+  .flip-card__content {
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-card,
+  .flip-card__rotor {
+    transition: none;
+  }
+}
