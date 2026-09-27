@@ -2,8 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import portfolioPic from "./assets/portfolio_pic.jpg";
 import cvFile from "./assets/Velasco CV.pdf";
 import certificateImage from "./assets/certify.png";
+import floodWatchLogo from "./assets/Flood-Watch.png";
+import auriSignLogo from "./assets/AuriSign.png";
+import myCrewManagerLogo from "./assets/My-Crew-Manager.png";
 import JellyRadio from "./JellyRadio";
 import FlipCard from "./FlipCard";
+import FolderFloat from "./FolderFloat";
 import "./App.css";
 
 const nameWords = "Joshuaa Nickk Velasco";
@@ -65,7 +69,7 @@ const stackGroups = [
   },
   {
     label: "Programming languages",
-    items: [["Python"], ["Java"], ["JavaScript"], ["C#"], ["Dart"], ["Kotlin"]],
+    items: [["Python"], ["Java"], ["JavaScript"], ["TypeScript"], ["C#"], ["Dart"], ["Kotlin"]],
   },
   {
     label: "Skills",
@@ -110,6 +114,34 @@ function App() {
   const [aboutHasBeenViewed, setAboutHasBeenViewed] = useState(false);
   const [aboutInView, setAboutInView] = useState(false);
   const [certificateModalOpen, setCertificateModalOpen] = useState(false);
+  const [certificateModalClosing, setCertificateModalClosing] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [projectModalClosing, setProjectModalClosing] = useState(false);
+
+  const projectDetails = {
+    "flood-watch": {
+      logo: floodWatchLogo,
+      title: "Flood Watch",
+      description:
+        "A Flutter-based mobile application designed to help its users within Brgy. Bonuan Boquig to stay informed about flood conditions and water levels of the area. It combines data from Arduino sensors, and historical flood data to determine and update the current flood levels and future predictions. ",
+      tags: ["Alerts", "Monitoring", "Analytics"],
+    },
+    aurisign: {
+      logo: auriSignLogo,
+      title: "AuriSign",
+      description:
+        "An educational cross-platform application that utilizes gesture recognition to assist individual on learning Filipino Sign Language. It contains learning modules on the different FSL signs, and a gesture recognition feature that allows the user to test their knowledge on the learned signs.",
+      category: "Product app / Digital signing",
+      tags: ["Gesture Recognition", "Cross Platform", "Media Pipeline"],
+    },
+    "my-crew-manager": {
+      logo: myCrewManagerLogo,
+      title: "My Crew Manager",
+      description:
+        "An application that helps organizations and groups to meet their deadline in time. This is by setting up kanban boards for the developers to stay motivated in finishing the project at hand. Moreover, all of this is possible through the use of artificial intelligence that aids the group to finish their projects on time. ",
+      tags: ["Scheduling", "Coordination", "Management"],
+    },
+  };
 
   const openCvModal = () => {
     setCvModalClosing(false);
@@ -124,8 +156,33 @@ function App() {
     }, 220);
   };
 
+  const closeCertificateModal = () => {
+    setCertificateModalClosing(true);
+    window.setTimeout(() => {
+      setCertificateModalOpen(false);
+      setCertificateModalClosing(false);
+    }, 220);
+  };
+
+  const closeProjectModal = () => {
+    setProjectModalClosing(true);
+    window.setTimeout(() => {
+      setSelectedProject(null);
+      setProjectModalClosing(false);
+    }, 220);
+  };
+
   const handleNavChange = (value) => {
     setActiveNav(value);
+
+    if (value === "top") {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+      return;
+    }
+
     const target = document.getElementById(value);
     if (target) {
       target.scrollIntoView({
@@ -133,11 +190,10 @@ function App() {
         block: "start",
         inline: "nearest",
       });
-    } else if (value === "top") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      window.location.hash = value === "work" ? "projects" : value;
+      return;
     }
+
+    window.location.hash = value === "work" ? "projects" : value;
   };
 
   useEffect(() => {
@@ -226,6 +282,7 @@ function App() {
     const observedSections = [
       { id: "top", element: heroRef.current },
       { id: "about", element: document.getElementById("about") },
+      { id: "experience", element: document.getElementById("experience") },
       { id: "work", element: document.getElementById("work") },
       { id: "contact", element: document.getElementById("contact") },
     ].filter((section) => section.element);
@@ -371,7 +428,7 @@ function App() {
         id="about"
         data-reveal="about"
       >
-        <div className="section-heading">
+        <div className="section-title">
           <p className="eyebrow">about me</p>
         </div>
         <div className="about-page-content">
@@ -427,9 +484,8 @@ function App() {
         data-reveal="experience"
       >
         <div className="experience-inner">
-          <div className="section-heading">
+          <div className="section-title">
             <p className="eyebrow">Experience & achievements</p>
-            <span>(02)</span>
           </div>
           <div className="experience-card-grid">
             <FlipCard
@@ -438,39 +494,13 @@ function App() {
                 <div className="flip-card__content achievement-face">
                   <div>
                     <p className="flip-card__eyebrow">Achievements</p>
-                    <h3>Current progress</h3>
+                    <h3>PHINMA University of Pangasinan</h3>
                     <div className="achievement-details">
+                      <p className="achievement-year">2023 &ndash; Present</p>
                       <p>
-                        <strong>Currently studying in college</strong>
-                        <br />
-                        Continuing to grow through academic work, practice, and
-                        new challenges.
+                        Took the program of Bachelor of Science in Information Technology with the specialization in System Development.
                       </p>
-                      <div className="certificate-panel">
-                        <p className="certificate-label">Certifications</p>
-                        <p>
-                          Earn a certificate by completing focused training,
-                          passing the required assessment, and submitting the
-                          certification requirements.
-                        </p>
-                        <button
-                          className="certificate-preview"
-                          type="button"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setCertificateModalOpen(true);
-                          }}
-                          aria-label="View certificate larger"
-                        >
-                          <img
-                            src={certificateImage}
-                            alt="Certificate preview"
-                          />
-                        </button>
-                        <span className="certificate-hint">
-                          Click certificate to enlarge
-                        </span>
-                      </div>
+                      
                     </div>
                   </div>
                   <p className="flip-card__hint">
@@ -480,29 +510,49 @@ function App() {
               }
               back={
                 <div className="flip-card__content experience-face">
-                  <div className="experience-error-page">
-                    <p className="experience-error-code">404</p>
-                    <h3>Not Found</h3>
-                    <p className="experience-error-message">
-                      eager to learn for experience
-                    </p>
+                  <div className="experience-error-wrap">
+                    <p className="flip-card__eyebrow">Experience</p>
+                    <div className="experience-error-page">
+                      <p className="experience-error-code">404</p>
+                      <h3>Not Found</h3>
+                      <p className="experience-error-message">
+                        eager to learn for experience
+                      </p>
+                    </div>
                   </div>
                   <p className="flip-card__hint">Click to view achievements</p>
                 </div>
               }
             />
+
+            <div className="certifications-card-wrap">
+              <p className="certifications-title">Certifications</p>
+              <div className="certifications-card">
+                <button
+                  className="certificate-preview"
+                  type="button"
+                  onClick={() => setCertificateModalOpen(true)}
+                  aria-label="View certificate larger"
+                >
+                  <img src={certificateImage} alt="Certificate preview" />
+                </button>
+                <p className="certificate-description">
+                  Completed a certification in cloud programming from Zuitt, a bootcamp that teaches the core principles of Amazon Web Services. 
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {certificateModalOpen && (
         <div
-          className="certificate-modal-backdrop"
+          className={`certificate-modal-backdrop ${certificateModalClosing ? "is-closing" : ""}`}
           role="presentation"
-          onClick={() => setCertificateModalOpen(false)}
+          onClick={closeCertificateModal}
         >
           <div
-            className="certificate-modal"
+            className={`certificate-modal ${certificateModalClosing ? "is-closing" : ""}`}
             role="dialog"
             aria-modal="true"
             aria-label="Certificate preview"
@@ -511,7 +561,7 @@ function App() {
             <button
               className="certificate-modal-close"
               type="button"
-              onClick={() => setCertificateModalOpen(false)}
+              onClick={closeCertificateModal}
               aria-label="Close certificate preview"
             >
               &times;
@@ -571,71 +621,91 @@ function App() {
         id="work"
         data-reveal="work"
       >
-        <div className="section-heading">
-          <p className="eyebrow">Selected work</p>
-          <span>(03)</span>
+        <div className="section-title">
+          <p className="eyebrow">projects</p>
         </div>
-        <div className="project-list">
-          <article className="project project-sage">
-            <div className="project-visual">
-              <span>01</span>
-              <strong>
-                Field
-                <br />
-                notes
-              </strong>
-            </div>
-            <div className="project-meta">
-              <h2>Field Notes</h2>
-              <p>Brand world / Digital experience</p>
-              <span>2025</span>
-            </div>
-          </article>
-          <article className="project project-coral">
-            <div className="project-visual">
-              <span>02</span>
-              <strong>
-                Soft
-                <br />
-                systems
-              </strong>
-            </div>
-            <div className="project-meta">
-              <h2>Soft Systems</h2>
-              <p>Product design / Direction</p>
-              <span>2024</span>
-            </div>
-          </article>
-          <article className="project project-blue">
-            <div className="project-visual">
-              <span>03</span>
-              <strong>
-                Good
-                <br />
-                company
-              </strong>
-            </div>
-            <div className="project-meta">
-              <h2>Good Company</h2>
-              <p>Campaign / Editorial</p>
-              <span>2024</span>
-            </div>
-          </article>
+        <div className="work-body">
+          <FolderFloat
+            onSelect={(value) => setSelectedProject(projectDetails[value])}
+          />
         </div>
       </section>
 
-      <footer
-        id="contact"
-        className={`site-footer ${visibleSections.includes("footer") ? "is-revealed" : ""}`}
-        data-reveal="footer"
-      >
-        <a href="mailto:hello@example.com">hello@example.com</a>
-        <div className="social-links">
-          <a href="#work">Work</a>
-          <a href="#top">Instagram</a>
-          <a href="#top">LinkedIn</a>
+      {selectedProject && (
+        <div
+          className={`project-modal-backdrop ${projectModalClosing ? "is-closing" : ""}`}
+          role="presentation"
+          onClick={closeProjectModal}
+        >
+          <div
+            className={`project-modal ${projectModalClosing ? "is-closing" : ""}`}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="project-modal-title"
+            aria-label={selectedProject.title}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              className="project-modal-close"
+              type="button"
+              onClick={closeProjectModal}
+              aria-label="Close project"
+            >
+              &times;
+            </button>
+            <div className="project-modal-heading">
+              <img
+                className="project-modal-logo"
+                src={selectedProject.logo}
+                alt=""
+              />
+              <h2 id="project-modal-title">{selectedProject.title}</h2>
+            </div>
+            <p className="project-modal-description">
+              {selectedProject.description}
+            </p>
+            <div className="project-modal-tags">
+              {selectedProject.tags.map((tag) => (
+                <span key={tag}>{tag}</span>
+              ))}
+            </div>
+          </div>
         </div>
-      </footer>
+      )}
+
+      <section
+        id="contact"
+        className={`contact-section site-footer ${visibleSections.includes("contact") ? "is-revealed" : ""}`}
+        data-reveal="contact"
+      >
+        <div className="section-title">
+          <p className="eyebrow">contact</p>
+        </div>
+        <div className="contact-body">
+          <div className="contact-shell">
+            <div className="contact-content">
+              <div className="contact-copy">
+                <h2>Let’s build something meaningful.</h2>
+                <p>
+                  I’m available for frontend work, QA testing, software
+                  development, and collaborative product ideas.
+                </p>
+              </div>
+
+              <div className="contact-card">
+                <span className="contact-label">Email</span>
+                <a href="mailto:hello@example.com">hello@example.com</a>
+              </div>
+            </div>
+
+            <div className="social-links" aria-label="Social links">
+              <a href="#work">Work</a>
+              <a href="#top">Instagram</a>
+              <a href="#top">LinkedIn</a>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

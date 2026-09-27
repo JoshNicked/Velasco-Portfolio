@@ -1,0 +1,315 @@
+.folder-float {
+  --folder-width: clamp(17rem, 32vw, 25rem);
+  --folder-height: clamp(11rem, 24vw, 16rem);
+  position: relative;
+  width: var(--folder-width);
+  height: calc(var(--folder-height) + 8rem);
+  font-family: inherit;
+}
+
+.folder-float__items {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 50%;
+  width: 15rem;
+  height: 8rem;
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  grid-template-rows: repeat(2, max-content);
+  justify-content: center;
+  align-content: end;
+  gap: 1.25rem 1.25rem;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.folder-float__item {
+  min-width: 6.25rem;
+  padding: 0.75rem 1rem;
+  border: 0.0625rem solid rgba(163, 190, 231, 0.28);
+  border-radius: 0.625rem;
+  color: var(--ink);
+  background: linear-gradient(
+    145deg,
+    rgba(38, 61, 103, 0.96),
+    rgba(17, 26, 57, 0.96)
+  );
+  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  font:
+    500 0.8125rem "DM Sans",
+    sans-serif;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4rem) rotate(0deg) scale(0.7);
+  transition:
+    opacity 0.35s ease,
+    transform 0.55s cubic-bezier(0.34, 1.57, 0.64, 1);
+}
+
+.folder-float__item:nth-child(1) {
+  --item-angle: -9deg;
+  --item-x: 0;
+  --item-y: 0;
+  z-index: 4;
+}
+.folder-float__item:nth-child(2) {
+  --item-angle: 0deg;
+  --item-x: 0;
+  --item-y: 0;
+  z-index: 4;
+}
+.folder-float__item:nth-child(3) {
+  --item-angle: -6deg;
+  --item-x: 4.25rem;
+  --item-y: 0;
+  z-index: 5;
+  justify-self: center;
+  text-align: center;
+}
+.folder-float__item:nth-child(4) {
+  --item-angle: 6deg;
+  --item-x: 0;
+  --item-y: 0;
+  z-index: 5;
+}
+
+.folder-float.is-open .folder-float__item,
+.folder-float__item:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(var(--item-x), var(--item-y)) rotate(var(--item-angle))
+    scale(1);
+  transition-delay: calc(var(--item-index) * 0.07s);
+}
+
+.folder-float__item:hover,
+.folder-float__item:focus-visible {
+  border-color: rgba(255, 255, 255, 0.9);
+  color: #18181b;
+  background: rgba(255, 255, 255, 0.86);
+  outline: none;
+  transform: translate(var(--item-x), -0.25rem) rotate(var(--item-angle))
+    scale(1.08);
+}
+
+.folder-float__trigger {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--folder-height);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.folder-float__connector {
+  position: absolute;
+  top: 50%;
+  right: -11rem;
+  display: flex;
+  align-items: center;
+  color: var(--coral);
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 0.25s ease;
+}
+
+.folder-float__line {
+  position: relative;
+  width: 5.5rem;
+  height: 0.1875rem;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(238, 245, 255, 0.3) 0 0.45rem,
+    transparent 0.45rem 0.7rem
+  );
+  box-shadow: 0 0 0.5rem rgba(158, 140, 255, 0.18);
+}
+
+.folder-float__line::before,
+.folder-float__line::after {
+  position: absolute;
+  top: 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 0.125rem solid currentColor;
+  border-radius: 50%;
+  background: #080d1f;
+  content: "";
+  transform: translateY(-50%);
+}
+
+.folder-float__line::before {
+  left: -0.25rem;
+}
+
+.folder-float__line::after {
+  right: -0.25rem;
+}
+
+.folder-float__icon {
+  width: 3.25rem;
+  height: 3.25rem;
+  transform-origin: center;
+  stroke-width: 1.5;
+}
+
+.folder-float:hover .folder-float__connector,
+.folder-float:focus-within .folder-float__connector {
+  opacity: 1;
+}
+
+.folder-float:hover .folder-float__line,
+.folder-float:focus-within .folder-float__line {
+  background:
+    linear-gradient(var(--coral), var(--coral)) no-repeat,
+    repeating-linear-gradient(
+      90deg,
+      rgba(238, 245, 255, 0.3) 0 0.45rem,
+      transparent 0.45rem 0.7rem
+    );
+  background-size: 100% 100%, auto 100%;
+  animation: connector-line-draw 1s cubic-bezier(0.22, 0.61, 0.36, 1)
+    forwards;
+  box-shadow: 0 0 0.75rem rgba(255, 155, 112, 0.35);
+}
+
+.folder-float:hover .folder-float__icon,
+.folder-float:focus-within .folder-float__icon {
+  animation: connector-icon-pulse 0.7s 1s cubic-bezier(0.22, 0.61, 0.36, 1)
+    both;
+}
+
+@keyframes connector-line-draw {
+  from {
+    background-size: 0 100%, auto 100%;
+  }
+  to {
+    background-size: 100% 100%, auto 100%;
+  }
+}
+
+@keyframes connector-icon-pulse {
+  0% {
+    opacity: 0;
+    filter: none;
+    transform: scale(0.78);
+  }
+  45% {
+    opacity: 1;
+    filter: drop-shadow(0 0 0.75rem var(--coral));
+    transform: scale(1.25);
+  }
+  100% {
+    opacity: 1;
+    filter: none;
+    transform: scale(1);
+  }
+}
+
+.folder-float__back,
+.folder-float__paper,
+.folder-float__front {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: 1rem;
+}
+
+.folder-float__back {
+  background: #263d67;
+  transform: perspective(40rem) rotateX(8deg);
+  transform-origin: 50% 100%;
+}
+
+.folder-float__back::before {
+  position: absolute;
+  top: -1.1rem;
+  left: 0;
+  width: 42%;
+  height: 2rem;
+  border-radius: 1rem 1rem 0 0;
+  background: #263d67;
+  content: "";
+}
+
+.folder-float__paper {
+  right: 8%;
+  left: 8%;
+  height: 55%;
+  background: #f5f5f5;
+  opacity: 0;
+  transform: translateY(1rem);
+  transition:
+    opacity 0.35s ease,
+    transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.folder-float.is-open .folder-float__paper {
+  opacity: 1;
+  transform: translateY(-1.5rem);
+}
+
+.folder-float__front {
+  top: 24%;
+  background: linear-gradient(145deg, #5266a8, #293b68);
+  box-shadow: 0 -1rem 2rem rgba(0, 0, 0, 0.22);
+  color: #eef5ff;
+  transform: perspective(40rem) rotateX(-16deg);
+  transform-origin: 50% 100%;
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.folder-float.is-open .folder-float__front {
+  transform: perspective(40rem) rotateX(-34deg);
+}
+
+.folder-float__label,
+.folder-float__sub {
+  position: absolute;
+  right: 1.25rem;
+  left: 1.25rem;
+  text-align: left;
+}
+
+.folder-float__label {
+  bottom: 2.2rem;
+  font:
+    500 1.125rem "DM Sans",
+    sans-serif;
+}
+
+.folder-float__sub {
+  bottom: 1.1rem;
+  color: #b7c4de;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 43.75rem) {
+  .folder-float {
+    --folder-width: min(82vw, 20rem);
+    --folder-height: 12rem;
+  }
+
+  .folder-float__items {
+    gap: 0.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folder-float__item,
+  .folder-float__front,
+  .folder-float__paper,
+  .folder-float__line,
+  .folder-float__icon {
+    transition: none;
+    animation: none;
+  }
+}
