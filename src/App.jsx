@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 import portfolioPic from "./assets/portfolio_pic.jpg";
 import cvFile from "./assets/Velasco CV.pdf";
 import certificateImage from "./assets/certify.png";
@@ -12,6 +14,8 @@ import "./App.css";
 
 const nameWords = "Joshuaa Nickk Velasco";
 const nameParts = nameWords.split(" ");
+const contactEmail = "velasco.joshuanick@gmail.com";
+const maxContactMessageLength = 5000;
 const stars = Array.from({ length: 96 }, (_, index) => ({
   id: index,
   "--left": `${(index * 37) % 100}%`,
@@ -43,6 +47,13 @@ const comets = [
     "--duration": "13s",
   },
 ];
+const contactComets = [
+  { id: 1, "--left": "8%", "--top": "24%", "--delay": "0s" },
+  { id: 2, "--left": "31%", "--top": "68%", "--delay": "0.9s" },
+  { id: 3, "--left": "52%", "--top": "14%", "--delay": "1.8s" },
+  { id: 4, "--left": "76%", "--top": "43%", "--delay": "2.7s" },
+  { id: 5, "--left": "91%", "--top": "78%", "--delay": "3.6s" },
+];
 
 const navItems = [
   { value: "top", label: "Home" },
@@ -69,7 +80,15 @@ const stackGroups = [
   },
   {
     label: "Programming languages",
-    items: [["Python"], ["Java"], ["JavaScript"], ["TypeScript"], ["C#"], ["Dart"], ["Kotlin"]],
+    items: [
+      ["Python"], 
+      ["Java"], 
+      ["JavaScript"], 
+      ["TypeScript"], 
+      ["C#"], 
+      ["Dart"], 
+      ["Kotlin"],
+    ],
   },
   {
     label: "Skills",
@@ -105,11 +124,17 @@ function App() {
   const [typedWords, setTypedWords] = useState(() => nameParts.map(() => ""));
   const [typingWordIndex, setTypingWordIndex] = useState(0);
   const [visibleSections, setVisibleSections] = useState([]);
+  const contactSectionRef = useRef(null);
+  const [contactHasBeenViewed, setContactHasBeenViewed] = useState(false);
+  const [contactAnimationActive, setContactAnimationActive] = useState(false);
+  const [contactAnimationComplete, setContactAnimationComplete] = useState(false);
+  const [contactSectionInView, setContactSectionInView] = useState(false);
   const [cvModalOpen, setCvModalOpen] = useState(false);
   const [cvModalClosing, setCvModalClosing] = useState(false);
   const [topbarVisible, setTopbarVisible] = useState(false);
   const [activeNav, setActiveNav] = useState("top");
   const heroRef = useRef(null);
+  const navTargetRef = useRef(null);
   const aboutRef = useRef(null);
   const [aboutHasBeenViewed, setAboutHasBeenViewed] = useState(false);
   const [aboutInView, setAboutInView] = useState(false);
@@ -117,6 +142,17 @@ function App() {
   const [certificateModalClosing, setCertificateModalClosing] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [projectModalClosing, setProjectModalClosing] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [contactModalClosing, setContactModalClosing] = useState(false);
+  const [contactSubmitting, setContactSubmitting] = useState(false);
+  const [contactResult, setContactResult] = useState("");
+  const [contactErrors, setContactErrors] = useState({});
+  const [contactCaptchaToken, setContactCaptchaToken] = useState("");
+  const contactTriggerRef = useRef(null);
+  const contactDialogRef = useRef(null);
+  const contactNameRef = useRef(null);
+  const contactEmailRef = useRef(null);
+  const contactCaptchaRef = useRef(null);
 
   const projectDetails = {
     "flood-watch": {
@@ -172,7 +208,154 @@ function App() {
     }, 220);
   };
 
+  const openContactModal = (event) => {
+    contactTriggerRef.current = event.currentTarget;
+    setContactModalClosing(false);
+    setContactResult("");
+    setContactErrors({});
+    setContactCaptchaToken("");
+    setContactModalOpen(true);
+  };
+
+  const closeContactModal = () => {
+    if (contactModalClosing) return;
+    setContactModalClosing(true);
+    window.setTimeout(() => {
+      setContactModalOpen(false);
+      setContactModalClosing(false);
+      contactTriggerRef.current?.focus();
+    }, 220);
+  };
+
+  const handleContactSubmit = async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const name = String(formData.get("name") || "").trim();
+    const email = String(formData.get("email") || "").trim();
+    const subject = String(formData.get("subject") || "").trim();
+    const message = String(formData.get("message") || "").trim();
+    const captchaResponse = contactCaptchaToken.trim();
+    const errors = {};
+
+    if (!name) errors.name = "Please enter your name.";
+    if (!email) {
+      errors.email = "Please enter your email address.";
+    } else if (contactEmailRef.current?.validity.typeMismatch) {
+      errors.email = "Please enter a valid email address.";
+    }
+    if (!subject) errors.subject = "Please enter a subject.";
+    if (!message) errors.message = "Please enter a message.";
+    if (message.length > maxContactMessageLength) {
+      errors.message = `Please keep your message under ${maxContactMessageLength.toLocaleString()} characters.`;
+    }
+    if (!captchaResponse) errors.captcha = "Please complete the security check.";
+
+    setContactErrors(errors);
+    setContactResult("");
+    if (Object.keys(errors).length > 0) return;
+
+    const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+    if (!accessKey) {
+      setContactResult("error");
+      return;
+    }
+
+    formData.set("access_key", accessKey);
+    formData.set("name", name);
+    formData.set("email", email);
+    formData.set("replyto", email);
+    formData.set("subject", subject);
+    formData.set("message", message);
+    formData.set("h-captcha-response", captchaResponse);
+
+    setContactSubmitting(true);
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result.success) throw new Error("Submission failed");
+      form.reset();
+      setContactResult("success");
+    } catch {
+      setContactResult("error");
+    } finally {
+      setContactSubmitting(false);
+    }
+  };
+
+  const handleCaptchaVerify = (token) => {
+    setContactCaptchaToken(token || "");
+    setContactErrors((current) => ({ ...current, captcha: "" }));
+  };
+
+  const handleCaptchaFailure = () => {
+    setContactCaptchaToken("");
+    setContactErrors((current) => ({
+      ...current,
+      captcha: "Unable to load the security check. Please refresh and try again.",
+    }));
+  };
+
+  const handleCaptchaExpire = () => {
+    setContactCaptchaToken("");
+    setContactErrors((current) => ({
+      ...current,
+      captcha: "Please complete the security check again.",
+    }));
+  };
+
+  const clearContactFeedback = (field) => {
+    setContactErrors((current) => ({ ...current, [field]: "" }));
+    setContactResult("");
+  };
+
+  useEffect(() => {
+    if (!contactModalOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    contactNameRef.current?.focus();
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        contactDialogRef.current
+          ?.querySelector(".contact-modal-close")
+          ?.click();
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+      const focusableElements = Array.from(
+        contactDialogRef.current?.querySelectorAll(
+          'button:not([disabled]), input:not([disabled]), textarea:not([disabled])',
+        ) || [],
+      ).filter((element) => element.getClientRects().length > 0);
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement?.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement?.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [contactModalOpen]);
+
   const handleNavChange = (value) => {
+    navTargetRef.current = value;
     setActiveNav(value);
 
     if (value === "top") {
@@ -259,7 +442,51 @@ function App() {
     );
 
     sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    const section = contactSectionRef.current;
+    if (!section) return undefined;
+
+    let hasStartedAnimation = false;
+    let startTimer;
+    let animationTimer;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setContactSectionInView(entry.isIntersecting);
+        if (!entry.isIntersecting || hasStartedAnimation) return;
+
+        hasStartedAnimation = true;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          setContactHasBeenViewed(true);
+          setContactAnimationComplete(true);
+          return;
+        }
+
+        startTimer = window.setTimeout(() => {
+          setContactHasBeenViewed(true);
+          setContactAnimationActive(true);
+          animationTimer = window.setTimeout(
+            () => {
+              setContactAnimationActive(false);
+              setContactAnimationComplete(true);
+            },
+            3400,
+          );
+        }, 250);
+      },
+      { threshold: 0.18 },
+    );
+
+    observer.observe(section);
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(startTimer);
+      window.clearTimeout(animationTimer);
+    };
   }, []);
 
   useEffect(() => {
@@ -289,6 +516,7 @@ function App() {
 
     const observer = new IntersectionObserver(
       (entries) => {
+        if (navTargetRef.current) return;
         const visible = entries
           .filter((entry) => entry.isIntersecting)
           .sort(
@@ -307,10 +535,53 @@ function App() {
     );
 
     observedSections.forEach((section) => observer.observe(section.element));
-    return () => observer.disconnect();
+
+    // Release the click-navigation lock once the destination is reached,
+    // or when the user takes over scrolling manually.
+    const releaseLock = () => {
+      if (!navTargetRef.current) return;
+      navTargetRef.current = null;
+      const marker = window.innerHeight * 0.18;
+      const current = observedSections
+        .filter((section) => section.element.getBoundingClientRect().top <= marker + 1)
+        .pop();
+      const atBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2;
+      const last = observedSections[observedSections.length - 1];
+      const next = atBottom ? last : current;
+      if (next) setActiveNav(next.id);
+    };
+    const handleScroll = () => {
+      const targetId = navTargetRef.current;
+      if (!targetId) return;
+      const target = observedSections.find((section) => section.id === targetId);
+      const atBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2;
+      const top = targetId === "top" ? window.scrollY : target?.element.getBoundingClientRect().top;
+      const targetIsLast = target === observedSections[observedSections.length - 1];
+      if ((atBottom && targetIsLast) || Math.abs(top ?? 0) <= 2) navTargetRef.current = null;
+    };
+    const cancelLock = () => releaseLock();
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scrollend", handleScroll);
+    window.addEventListener("wheel", cancelLock, { passive: true });
+    window.addEventListener("touchstart", cancelLock, { passive: true });
+    window.addEventListener("keydown", cancelLock);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scrollend", handleScroll);
+      window.removeEventListener("wheel", cancelLock);
+      window.removeEventListener("touchstart", cancelLock);
+      window.removeEventListener("keydown", cancelLock);
+    };
   }, []);
 
   const navigationVisible = topbarVisible || activeNav !== "top";
+  const contactSkyActive = contactSectionInView && contactAnimationComplete;
 
   return (
     <main>
@@ -326,12 +597,22 @@ function App() {
           ariaLabel="Main navigation"
         />
       </nav>
-      <div className="space-field" aria-hidden="true">
+      <div
+        className={`space-field ${contactSkyActive ? "is-contact-active" : ""}`}
+        aria-hidden="true"
+      >
         {stars.map((star) => (
           <i className="star" key={star.id} style={star} />
         ))}
         {comets.map((comet) => (
           <i className="comet" key={comet.id} style={comet} />
+        ))}
+        {contactComets.map((comet) => (
+          <i
+            className="comet is-contact-comet"
+            key={`contact-${comet.id}`}
+            style={comet}
+          />
         ))}
       </div>
       <section
@@ -498,7 +779,7 @@ function App() {
                     <div className="achievement-details">
                       <p className="achievement-year">2023 &ndash; Present</p>
                       <p>
-                        Took the program of Bachelor of Science in Information Technology with the specialization in System Development.
+                        Pursuing the program of Bachelor of Science in Information Technology with the specialization in System Development.
                       </p>
                       
                     </div>
@@ -675,6 +956,7 @@ function App() {
 
       <section
         id="contact"
+        ref={contactSectionRef}
         className={`contact-section site-footer ${visibleSections.includes("contact") ? "is-revealed" : ""}`}
         data-reveal="contact"
       >
@@ -682,30 +964,214 @@ function App() {
           <p className="eyebrow">contact</p>
         </div>
         <div className="contact-body">
-          <div className="contact-shell">
+          <div
+            className={`contact-shell ${contactHasBeenViewed ? "is-revealed" : ""} ${contactAnimationActive ? "is-animating" : ""} ${contactAnimationComplete ? "is-complete" : ""}`}
+          >
             <div className="contact-content">
               <div className="contact-copy">
-                <h2>Let’s build something meaningful.</h2>
+                <h2>Let's work, grow and innovate together</h2>
                 <p>
-                  I’m available for frontend work, QA testing, software
-                  development, and collaborative product ideas.
+                  I’m Available for Frontend work, QA Testing, Software
+                  Development, and Collaborative Projects.
                 </p>
               </div>
+              <div className="contact-actions">
+                <button
+                  className="contact-card"
+                  type="button"
+                  onClick={openContactModal}
+                  aria-haspopup="dialog"
+                  aria-label={`Email ${contactEmail}. Open contact form`}
+                >
+                  <span className="contact-label">Email</span>
+                  <span className="contact-card-email">{contactEmail}</span>
+                </button>
 
-              <div className="contact-card">
-                <span className="contact-label">Email</span>
-                <a href="mailto:hello@example.com">hello@example.com</a>
+                <div className="social-links" aria-label="Contact links">
+                  <a
+                    className="social-link-text"
+                    href="https://www.linkedin.com/in/joshua-nick-velasco"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    LinkedIn
+                  </a>
+                  <a
+                    className="social-link-text"
+                    href="https://calendly.com/velasco-joshuanick"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Calendly
+                  </a>
+                  <a
+                    className="social-link-text"
+                    href="https://www.whatsapp.com/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    WhatsApp
+                  </a>
+                </div>
               </div>
-            </div>
-
-            <div className="social-links" aria-label="Social links">
-              <a href="#work">Work</a>
-              <a href="#top">Instagram</a>
-              <a href="#top">LinkedIn</a>
             </div>
           </div>
         </div>
       </section>
+
+      {contactModalOpen &&
+        createPortal(
+          <div
+            className={`contact-modal-backdrop ${contactModalClosing ? "is-closing" : ""}`}
+            role="presentation"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) closeContactModal();
+            }}
+          >
+            <section
+              ref={contactDialogRef}
+              className={`contact-modal ${contactModalClosing ? "is-closing" : ""}`}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="contact-modal-title"
+            >
+              <button
+                className="contact-modal-close"
+                type="button"
+                onClick={closeContactModal}
+                aria-label="Close contact form"
+              >
+                &times;
+              </button>
+              <h2 id="contact-modal-title">Contact Me</h2>
+              <form className="contact-form" onSubmit={handleContactSubmit} noValidate>
+                <input
+                  type="hidden"
+                  name="access_key"
+                  value={import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || ""}
+                />
+                <input
+                  className="contact-honeypot"
+                  type="checkbox"
+                  name="botcheck"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                />
+                <div className="contact-captcha-field">
+                  <HCaptcha
+                    ref={contactCaptchaRef}
+                    sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2"
+                    reCaptchaCompat={false}
+                    onVerify={handleCaptchaVerify}
+                    onExpire={handleCaptchaExpire}
+                    onError={handleCaptchaFailure}
+                  />
+                  {contactErrors.captcha && (
+                    <span className="contact-field-error" role="alert">
+                      {contactErrors.captcha}
+                    </span>
+                  )}
+                </div>
+                <div className="contact-form-field">
+                  <label htmlFor="contact-name">Name</label>
+                  <input
+                    ref={contactNameRef}
+                    id="contact-name"
+                    name="name"
+                    type="text"
+                    autoComplete="name"
+                    required
+                    aria-invalid={Boolean(contactErrors.name)}
+                    aria-describedby={contactErrors.name ? "contact-name-error" : undefined}
+                    onChange={() => clearContactFeedback("name")}
+                  />
+                  {contactErrors.name && (
+                    <span className="contact-field-error" id="contact-name-error">
+                      {contactErrors.name}
+                    </span>
+                  )}
+                </div>
+                <div className="contact-form-field">
+                  <label htmlFor="contact-email">Email</label>
+                  <input
+                    ref={contactEmailRef}
+                    id="contact-email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    aria-invalid={Boolean(contactErrors.email)}
+                    aria-describedby={contactErrors.email ? "contact-email-error" : undefined}
+                    onChange={() => clearContactFeedback("email")}
+                  />
+                  {contactErrors.email && (
+                    <span className="contact-field-error" id="contact-email-error">
+                      {contactErrors.email}
+                    </span>
+                  )}
+                </div>
+                <div className="contact-form-field">
+                  <label htmlFor="contact-subject">Subject</label>
+                  <input
+                    id="contact-subject"
+                    name="subject"
+                    type="text"
+                    required
+                    aria-invalid={Boolean(contactErrors.subject)}
+                    aria-describedby={contactErrors.subject ? "contact-subject-error" : undefined}
+                    onChange={() => clearContactFeedback("subject")}
+                  />
+                  {contactErrors.subject && (
+                    <span className="contact-field-error" id="contact-subject-error">
+                      {contactErrors.subject}
+                    </span>
+                  )}
+                </div>
+                <div className="contact-form-field contact-form-message">
+                  <label htmlFor="contact-message">Message</label>
+                  <textarea
+                    id="contact-message"
+                    name="message"
+                    rows="4"
+                    maxLength={maxContactMessageLength}
+                    required
+                    aria-invalid={Boolean(contactErrors.message)}
+                    aria-describedby={contactErrors.message ? "contact-message-error" : undefined}
+                    onChange={() => clearContactFeedback("message")}
+                  />
+                  {contactErrors.message && (
+                    <span className="contact-field-error" id="contact-message-error">
+                      {contactErrors.message}
+                    </span>
+                  )}
+                </div>
+                {contactResult === "success" && (
+                  <p className="contact-form-result is-success" role="status">
+                    Your message has been sent successfully. I’ll get back to you as soon as possible.
+                  </p>
+                )}
+                {contactResult === "error" && (
+                  <p className="contact-form-result is-error" role="alert">
+                    Something went wrong while sending your message. Please try again.
+                  </p>
+                )}
+                <button
+                  className="contact-form-submit"
+                  type="submit"
+                  disabled={contactSubmitting || contactResult === "success"}
+                >
+                  {contactSubmitting
+                    ? "Sending..."
+                    : contactResult === "success"
+                      ? "Message Sent!"
+                      : "Send Message"}
+                </button>
+              </form>
+            </section>
+          </div>,
+          document.body,
+        )}
     </main>
   );
 }
