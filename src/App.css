@@ -863,7 +863,6 @@ main {
 }
 .site-footer {
   padding: 1.6875rem clamp(1.375rem, 5vw, 4.75rem);
-  border-top: 0.0625rem solid var(--line);
   color: var(--muted);
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
@@ -1216,7 +1215,7 @@ main {
 }
 .contact-captcha-field {
   display: grid;
-  justify-items: start;
+  justify-items: center;
   gap: 0.5rem;
   min-width: 0;
 }
@@ -1315,6 +1314,11 @@ main {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .work-section .folder-float {
+    transform: none;
+    transition: none;
+  }
+
   .star {
     transition: none;
   }
@@ -1404,16 +1408,11 @@ main {
 }
 .work-section {
   background: linear-gradient(135deg, rgba(220, 231, 195, 0.2), rgba(245, 239, 228, 0.18) 58%, rgba(240, 196, 167, 0.14));
-  border-top: 0.0625rem solid rgba(228, 110, 77, 0.16);
-  border-bottom: 0.0625rem solid rgba(18, 63, 58, 0.1);
 }
 .about-section {
   background: linear-gradient(115deg, rgba(240, 196, 167, 0.2), rgba(245, 239, 228, 0.18) 44%, rgba(184, 217, 208, 0.18));
 }
-.site-footer {
-  background: rgba(18, 63, 58, 0.18);
-  color: #f5efe4;
-}
+
 .project-visual {
   transition:
     transform 0.35s ease,
@@ -1622,8 +1621,6 @@ main {
     rgba(24, 36, 75, 0.94),
     rgba(34, 25, 74, 0.86)
   );
-  border-top: 0.0625rem solid rgba(158, 140, 255, 0.38);
-  border-bottom: 0.0625rem solid rgba(163, 190, 231, 0.18);
 }
 .about-section {
   background: transparent;
@@ -2109,12 +2106,19 @@ main {
   transform: translateX(-4rem);
   transition:
     opacity 1.2s ease 0.9s,
-    transform 1.2s ease 0.9s;
+    transform 1.2s ease 0.9s,
+    scale 0.28s ease;
 }
 
 .experience-section.is-revealed .experience-card {
   opacity: 1;
   transform: translateX(0);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .experience-card:hover {
+    scale: 1.04;
+  }
 }
 
 .achievement-face,
@@ -2517,7 +2521,8 @@ main {
 
 .about-grid h2 {
   max-width: 38.75rem;
-  font-size: clamp(1.875rem, 4vw, 3.375rem);
+  font-size: clamp(1.875rem, 2.65vw, 2.375rem);
+  line-height: 1.12;
   letter-spacing: -0.035em;
 }
 
@@ -2705,6 +2710,11 @@ main {
   flex-direction: column;
   padding: 0 clamp(2rem, 10vw, 11.25rem) clamp(5rem, 10vh, 8rem);
   overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(24, 36, 75, 0.38),
+    rgba(34, 25, 74, 0.32)
+  );
 }
 
 .work-body {
@@ -2730,6 +2740,12 @@ main {
 
 .work-section .folder-float {
   z-index: 1;
+  transform: translate3d(var(--magnet-x, 0px), var(--magnet-y, 0px), 0);
+  transition: transform 0.24s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.work-section .folder-float.is-open {
+  transform: none;
 }
 
 .project-modal-backdrop {
@@ -2739,8 +2755,532 @@ main {
   display: grid;
   place-items: center;
   padding: 1.5rem;
+  overflow: hidden;
   background: rgba(4, 7, 18, 0.78);
   animation: modal-fade-in 0.25s ease both;
+}
+
+.project-modal-backdrop--flood-watch {
+  background:
+    linear-gradient(rgba(4, 7, 18, 0.72), rgba(4, 7, 18, 0.78)),
+    radial-gradient(ellipse at 50% 110%, rgba(17, 83, 125, 0.42), transparent 66%),
+    #040712;
+}
+
+.project-modal-backdrop--my-crew-manager {
+  background:
+    radial-gradient(ellipse at 50% 25%, rgba(74, 105, 143, 0.28), transparent 52%),
+    linear-gradient(rgba(4, 7, 18, 0.52), rgba(4, 7, 18, 0.72)),
+    linear-gradient(180deg, #26334a, #111a2b 58%, #080d18);
+}
+
+.project-modal-backdrop--aurisign {
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(76, 58, 139, 0.3), transparent 62%),
+    linear-gradient(rgba(4, 7, 18, 0.52), rgba(4, 7, 18, 0.75)),
+    #080a1c;
+}
+
+.project-modal-sign-scene {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(115, 91, 204, 0.14), transparent 35%),
+    radial-gradient(circle at 18% 72%, rgba(69, 214, 211, 0.13), transparent 24%),
+    radial-gradient(circle at 84% 20%, rgba(185, 116, 255, 0.13), transparent 26%),
+    radial-gradient(rgba(198, 212, 255, 0.48) 0.06rem, transparent 0.075rem) 0 0 / 3.6rem 3.6rem;
+}
+
+.project-modal-sign-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(70vw, 58rem);
+  aspect-ratio: 1;
+  border: 1px solid rgba(147, 174, 255, 0.15);
+  border-radius: 50%;
+  box-shadow: 0 0 2.5rem rgba(130, 115, 255, 0.08), inset 0 0 2rem rgba(65, 211, 211, 0.04);
+  transform: translate(-50%, -50%) rotate(-18deg) scaleY(0.42);
+}
+
+.project-modal-sign-orbit--two {
+  width: min(96vw, 78rem);
+  border-color: rgba(93, 218, 221, 0.11);
+  transform: translate(-50%, -50%) rotate(18deg) scaleY(0.3);
+}
+
+.project-modal-sign-card {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  min-width: 0;
+  width: min(8rem, calc((100vw - min(88vw, 62rem)) / 2 - 1.5rem));
+  height: clamp(7.5rem, 16vh, 9.5rem);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  animation: project-sign-card-float 6s ease-in-out infinite;
+}
+
+.project-modal-sign-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 0 0.8rem rgba(121, 194, 255, 0.38));
+}
+
+.project-modal-sign-sequence {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 0;
+}
+
+.project-modal-sign-column {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  height: min(84vh, 48rem);
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 0.35rem;
+  transform: translate(-50%, -50%);
+}
+
+.project-modal-sign-column--hire {
+  left: calc((100vw - min(88vw, 62rem)) / 4);
+}
+
+.project-modal-sign-column--me {
+  left: calc(100vw - (100vw - min(88vw, 62rem)) / 4);
+}
+
+.project-modal-sign-column .project-modal-sign-card:nth-child(even) {
+  animation-delay: -2s;
+}
+
+.project-modal-sign-particle {
+  position: absolute;
+  width: 0.42rem;
+  height: 0.42rem;
+  border: 1px solid rgba(139, 245, 226, 0.85);
+  border-radius: 50%;
+  box-shadow: 0 0 0.9rem rgba(94, 222, 222, 0.75);
+  animation: project-sign-particle 4s ease-in-out infinite alternate;
+}
+
+.project-modal-sign-particle--one {
+  top: 28%;
+  left: 26%;
+}
+
+.project-modal-sign-particle--two {
+  top: 67%;
+  left: 13%;
+  animation-delay: -1s;
+}
+
+.project-modal-sign-particle--three {
+  top: 33%;
+  right: 28%;
+  animation-delay: -2.4s;
+}
+
+.project-modal-sign-particle--four {
+  right: 24%;
+  bottom: 24%;
+  animation-delay: -3s;
+}
+
+@media (max-width: 75rem) {
+  .project-modal-sign-sequence {
+    display: none;
+  }
+}
+
+.project-modal-sign-scanline {
+  position: absolute;
+  top: -15%;
+  left: 0;
+  width: 100%;
+  height: 0.12rem;
+  opacity: 0.52;
+  background: linear-gradient(90deg, transparent, rgba(99, 233, 225, 0.7), transparent);
+  box-shadow: 0 0 1.2rem rgba(99, 233, 225, 0.58);
+  animation: project-sign-scan 12s linear infinite;
+}
+
+@keyframes project-sign-card-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -0.4rem; }
+}
+
+@keyframes project-sign-particle {
+  from { opacity: 0.35; transform: scale(0.75); }
+  to { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes project-sign-scan {
+  to { top: 110%; }
+}
+
+.project-modal-office {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.9;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent 0 66%, rgba(8, 13, 24, 0.58) 66% 100%),
+    repeating-linear-gradient(90deg, transparent 0 13vw, rgba(152, 177, 211, 0.08) 13.1vw 13.25vw),
+    radial-gradient(ellipse at 50% 76%, rgba(255, 192, 121, 0.1), transparent 44%);
+}
+
+.project-modal-office::before {
+  position: absolute;
+  right: -15%;
+  bottom: -18%;
+  left: -15%;
+  height: 42%;
+  background:
+    linear-gradient(180deg, rgba(16, 24, 37, 0.08), rgba(6, 10, 18, 0.82)),
+    repeating-linear-gradient(90deg, transparent 0 12vw, rgba(161, 184, 213, 0.09) 12.1vw 12.2vw),
+    repeating-linear-gradient(0deg, transparent 0 3.5rem, rgba(161, 184, 213, 0.07) 3.55rem 3.62rem);
+  clip-path: polygon(20% 0, 80% 0, 100% 100%, 0 100%);
+  content: "";
+}
+
+.project-modal-office::after {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 92%, rgba(255, 198, 135, 0.11), transparent 35%),
+    linear-gradient(90deg, rgba(4, 8, 16, 0.32), transparent 18% 82%, rgba(4, 8, 16, 0.32));
+  content: "";
+}
+
+.project-modal-office-window {
+  position: absolute;
+  top: 5%;
+  left: 13%;
+  width: 74%;
+  height: 52%;
+  border: 0.5rem solid rgba(127, 157, 193, 0.2);
+  border-bottom-width: 0.75rem;
+  background:
+    linear-gradient(90deg, transparent 49.5%, rgba(162, 191, 225, 0.23) 50%, transparent 50.5%),
+    linear-gradient(0deg, transparent 49.5%, rgba(162, 191, 225, 0.18) 50%, transparent 50.5%),
+    linear-gradient(180deg, transparent 0 62%, rgba(14, 26, 43, 0.46) 62%),
+    linear-gradient(135deg, rgba(81, 116, 156, 0.34), rgba(20, 34, 55, 0.38));
+  box-shadow:
+    inset 0 0 4rem rgba(107, 151, 202, 0.15),
+    0 0 1.75rem rgba(101, 146, 197, 0.12),
+    0 0.75rem 0 rgba(7, 12, 22, 0.22);
+}
+
+.project-modal-office-window::before {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 42%;
+  background:
+    linear-gradient(90deg, transparent 0 9%, rgba(16, 26, 43, 0.9) 9.2% 14%, transparent 14.2% 21%, rgba(20, 31, 49, 0.84) 21.2% 28%, transparent 28.2% 38%, rgba(14, 24, 40, 0.88) 38.2% 46%, transparent 46.2% 57%, rgba(18, 29, 46, 0.9) 57.2% 65%, transparent 65.2% 74%, rgba(13, 23, 39, 0.84) 74.2% 83%, transparent 83.2% 91%, rgba(18, 28, 44, 0.86) 91.2%),
+    repeating-linear-gradient(0deg, transparent 0 1rem, rgba(255, 207, 139, 0.45) 1.05rem 1.18rem, transparent 1.23rem 1.8rem);
+  content: "";
+  opacity: 0.72;
+}
+
+.project-modal-office-window::after {
+  position: absolute;
+  top: 0;
+  left: 9%;
+  width: 24%;
+  height: 80%;
+  background: linear-gradient(112deg, rgba(218, 234, 255, 0.1), transparent 72%);
+  content: "";
+}
+
+.project-modal-office-light {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 36vw;
+  height: 65vh;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(ellipse at 50% 0, rgba(255, 216, 157, 0.2), transparent 70%),
+    linear-gradient(180deg, transparent 50%, rgba(255, 201, 133, 0.045), transparent 88%);
+  animation: office-light-flicker 9s ease-in-out infinite;
+}
+
+.project-modal-office-desk {
+  position: absolute;
+  bottom: 20%;
+  width: 22%;
+  height: 0.8rem;
+  border: 1px solid rgba(202, 219, 242, 0.12);
+  border-radius: 0.2rem;
+  background: linear-gradient(180deg, #718095, #414e62 50%, #2c394d);
+  box-shadow:
+    0 0.35rem 0 rgba(16, 23, 35, 0.58),
+    0 0.65rem 0.7rem rgba(0, 0, 0, 0.32),
+    0 0 1.25rem rgba(255, 197, 131, 0.08);
+}
+
+.project-modal-office-desk::before,
+.project-modal-office-desk::after {
+  position: absolute;
+  top: 0.6rem;
+  width: 0.35rem;
+  height: 5rem;
+  background: linear-gradient(90deg, #29374a, #435168 50%, #29374a);
+  content: "";
+}
+
+.project-modal-office-desk::before {
+  left: 10%;
+}
+
+.project-modal-office-desk::after {
+  right: 10%;
+}
+
+.project-modal-office-desk--one {
+  left: 2%;
+}
+
+.project-modal-office-desk--two {
+  left: 39%;
+  bottom: 15%;
+  transform: scale(1.15);
+}
+
+.project-modal-office-desk--three {
+  right: 2%;
+}
+
+.project-modal-office-desk i {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 42%;
+  width: 4rem;
+  height: 2.75rem;
+  border: 0.25rem solid #27364a;
+  border-bottom-width: 0.5rem;
+  border-radius: 0.3rem 0.3rem 0.1rem 0.1rem;
+  background:
+    linear-gradient(135deg, rgba(226, 251, 255, 0.34), transparent 36%),
+    linear-gradient(145deg, #74b7c7, #365f81 55%, #243a58);
+  box-shadow: 0 0 1.2rem rgba(102, 190, 210, 0.25), 0 0.2rem 0.5rem rgba(0, 0, 0, 0.45);
+}
+
+.project-modal-office-desk b {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 44%;
+  width: 3.5rem;
+  height: 2.3rem;
+  background: linear-gradient(90deg, transparent, rgba(159, 227, 228, 0.16), transparent);
+  animation: office-screen-glow 4s ease-in-out infinite alternate;
+}
+
+.project-modal-office-worker {
+  position: absolute;
+  bottom: 21%;
+  width: 3.5rem;
+  height: 7rem;
+  opacity: 0.9;
+  filter: drop-shadow(0 0.3rem 0.35rem rgba(0, 0, 0, 0.24));
+}
+
+.project-modal-office-worker i {
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  width: 1.4rem;
+  height: 1.55rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c4a98b, #806e60);
+  box-shadow: inset -0.25rem -0.15rem rgba(26, 32, 43, 0.3);
+}
+
+.project-modal-office-worker b {
+  position: absolute;
+  top: 1.3rem;
+  left: 0.45rem;
+  width: 2.65rem;
+  height: 4.8rem;
+  border: 1px solid rgba(214, 229, 247, 0.12);
+  border-radius: 1.1rem 1.1rem 0.3rem 0.3rem;
+  background:
+    linear-gradient(80deg, transparent 47%, rgba(224, 233, 245, 0.12) 50%, transparent 53%),
+    linear-gradient(90deg, #3a5066, #687487 50%, #35465c);
+}
+
+.project-modal-office-worker--one {
+  left: 10%;
+}
+
+.project-modal-office-worker--two {
+  left: 49%;
+  bottom: 17%;
+  transform: scale(1.18);
+}
+
+.project-modal-office-worker--three {
+  right: 11%;
+}
+
+.project-modal-office-walker {
+  position: absolute;
+  bottom: 8%;
+  left: -5rem;
+  width: 2.2rem;
+  height: 6.4rem;
+  filter: drop-shadow(0 0.25rem 0.3rem rgba(0, 0, 0, 0.3));
+  animation: office-walk 18s linear infinite;
+}
+
+.project-modal-office-walker i {
+  position: absolute;
+  top: 0;
+  left: 0.55rem;
+  width: 1.1rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background: #a99a88;
+}
+
+.project-modal-office-walker b {
+  position: absolute;
+  top: 1rem;
+  left: 0.25rem;
+  width: 1.7rem;
+  height: 3.7rem;
+  border-radius: 0.8rem 0.8rem 0.3rem 0.3rem;
+  background: #6b7889;
+  transform-origin: 50% 0;
+  animation: office-walk-sway 0.55s ease-in-out infinite alternate;
+}
+
+.project-modal-office-walker::before,
+.project-modal-office-walker::after {
+  position: absolute;
+  top: 4.3rem;
+  left: 0.6rem;
+  width: 0.4rem;
+  height: 2rem;
+  border-radius: 0.3rem;
+  background: #30394a;
+  content: "";
+  transform-origin: 50% 0;
+  animation: office-walk-legs 0.55s ease-in-out infinite alternate;
+}
+
+.project-modal-office-walker::after {
+  animation-delay: -0.55s;
+}
+
+@keyframes office-light-flicker {
+  0%, 100% { opacity: 0.62; }
+  48% { opacity: 0.94; }
+  51% { opacity: 0.5; }
+  54% { opacity: 0.86; }
+}
+
+@keyframes office-screen-glow {
+  from { opacity: 0.25; }
+  to { opacity: 0.85; }
+}
+
+@keyframes office-walk {
+  to { transform: translateX(calc(100vw + 6rem)); }
+}
+
+@keyframes office-walk-sway {
+  to { transform: rotate(4deg); }
+}
+
+@keyframes office-walk-legs {
+  to { transform: rotate(24deg); }
+}
+
+.project-modal-backdrop-rain {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.project-modal-storm-clouds {
+  position: absolute;
+  top: -4rem;
+  left: -10%;
+  width: 120%;
+  height: min(48vh, 24rem);
+  opacity: 0.76;
+  background:
+    radial-gradient(ellipse at 12% 60%, rgba(70, 82, 111, 0.78) 0 16%, transparent 36%),
+    radial-gradient(ellipse at 32% 30%, rgba(44, 56, 83, 0.94) 0 18%, transparent 38%),
+    radial-gradient(ellipse at 55% 48%, rgba(65, 75, 101, 0.76) 0 20%, transparent 42%),
+    radial-gradient(ellipse at 80% 28%, rgba(42, 52, 78, 0.92) 0 19%, transparent 40%),
+    radial-gradient(ellipse at 96% 58%, rgba(67, 79, 104, 0.68) 0 16%, transparent 36%);
+  filter: blur(0.35rem);
+  animation: project-cloud-drift 24s ease-in-out infinite alternate;
+}
+
+.project-modal-lightning-flash {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: rgba(190, 216, 255, 0.2);
+  animation: project-lightning-flash 13s linear infinite;
+}
+
+.project-modal-lightning-bolt {
+  position: absolute;
+  top: 14%;
+  left: 68%;
+  width: clamp(2.5rem, 6vw, 5rem);
+  height: clamp(8rem, 24vh, 14rem);
+  opacity: 0;
+  background: linear-gradient(180deg, #fff 0%, #cbe5ff 44%, rgba(116, 177, 255, 0.9) 100%);
+  clip-path: polygon(54% 0, 100% 0, 61% 38%, 91% 38%, 18% 100%, 39% 55%, 8% 55%);
+  filter: drop-shadow(0 0 1rem rgba(151, 202, 255, 0.95));
+  animation: project-lightning-bolt 13s linear infinite;
+}
+
+.project-modal-lightning-bolt--two {
+  top: 23%;
+  left: 27%;
+  width: clamp(1.75rem, 4vw, 3.5rem);
+  height: clamp(5rem, 16vh, 9rem);
+  animation-delay: 6.7s;
+  animation-duration: 17s;
+}
+
+.project-modal-backdrop-rain .project-modal-rain {
+  inset: -40% -20%;
+  opacity: 0.38;
+}
+
+.project-modal-backdrop-rain .project-modal-rain--back {
+  opacity: 0.2;
+}
+
+.project-modal-backdrop-rain .project-modal-rain--front {
+  opacity: 0.34;
 }
 
 .project-modal-backdrop.is-closing {
@@ -2749,52 +3289,469 @@ main {
 
 .project-modal {
   position: relative;
-  width: min(100%, 32rem);
-  padding: 1.5rem 2.5rem 1.75rem;
-  overflow: hidden;
+  z-index: 1;
+  isolation: isolate;
+  display: flex;
+  width: min(88vw, 62rem);
+  max-height: 92vh;
+  max-height: 92svh;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border: 0.0625rem solid var(--line);
   border-radius: 1.25rem;
   background: linear-gradient(
     145deg,
-    rgba(17, 26, 57, 0.98),
-    rgba(8, 13, 31, 0.98)
+    rgba(17, 26, 57, 0.93),
+    rgba(8, 13, 31, 0.94)
   );
   box-shadow: 0 1.5rem 4.375rem rgba(0, 0, 0, 0.45);
   color: var(--ink);
   animation: modal-slide-in 0.3s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
+.project-modal-atmosphere {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.project-modal-header,
+.project-modal-body {
+  position: relative;
+  z-index: 1;
+}
+
+.project-modal-close {
+  z-index: 2;
+}
+
+.project-modal-atmosphere--flood-watch {
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    rgba(66, 132, 194, 0.1),
+    transparent 55%
+  );
+}
+
+.project-modal-rain {
+  position: absolute;
+  inset: -35% -20%;
+  opacity: 0.24;
+  background-image: repeating-linear-gradient(
+    106deg,
+    transparent 0 2.6rem,
+    rgba(172, 216, 255, 0.54) 2.66rem,
+    transparent 2.72rem 4.8rem
+  );
+  background-size: 5.2rem 8rem;
+  animation: project-rain-fall 1.25s linear infinite;
+}
+
+.project-modal-rain--back {
+  opacity: 0.12;
+  background-size: 7.4rem 6rem;
+  animation-duration: 1.8s;
+}
+
+.project-modal-rain--front {
+  opacity: 0.2;
+  filter: blur(0.04rem);
+}
+
+.project-modal-floodwater {
+  position: absolute;
+  z-index: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 0;
+  max-height: 50svh;
+  overflow: hidden;
+  opacity: 0.76;
+  background: linear-gradient(
+    180deg,
+    rgba(67, 169, 220, 0.26),
+    rgba(20, 89, 143, 0.54) 35%,
+    rgba(7, 41, 82, 0.76)
+  );
+  box-shadow: 0 -0.4rem 1.5rem rgba(82, 183, 230, 0.12);
+  animation: project-flood-rise 60s cubic-bezier(0.18, 0.62, 0.32, 1) forwards;
+}
+
+.project-modal-fish {
+  position: absolute;
+  bottom: 12%;
+  left: 0;
+  width: 3.75rem;
+  height: 1.8rem;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 0.4rem rgba(150, 215, 255, 0.55));
+  animation: project-fish-swim 22s linear infinite;
+}
+
+.project-modal-fish svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.project-modal-fish-body {
+  fill: rgba(176, 219, 246, 0.9);
+  stroke: rgba(226, 244, 255, 0.95);
+  stroke-width: 2;
+}
+
+.project-modal-fish-tail,
+.project-modal-fish-fin {
+  fill: rgba(107, 174, 214, 0.88);
+  stroke: rgba(197, 230, 250, 0.9);
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.project-modal-fish-fin {
+  fill: rgba(122, 191, 226, 0.7);
+}
+
+.project-modal-fish-gill {
+  fill: none;
+  stroke: rgba(54, 112, 150, 0.8);
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.project-modal-fish-eye {
+  fill: #102b43;
+  stroke: #e5f5ff;
+  stroke-width: 1;
+}
+
+.project-modal-fish--one {
+  bottom: 12%;
+  animation-delay: -4s;
+}
+
+.project-modal-fish--two {
+  bottom: 36%;
+  width: 2.8rem;
+  height: 1.35rem;
+  opacity: 0.68;
+  animation-name: project-fish-swim-reverse;
+  animation-duration: 27s;
+  animation-delay: -16s;
+}
+
+.project-modal-fish--three {
+  bottom: 62%;
+  width: 3.2rem;
+  height: 1.55rem;
+  opacity: 0.74;
+  animation-duration: 31s;
+  animation-delay: -22s;
+}
+
+.project-modal-floodwater::before {
+  position: absolute;
+  top: -0.55rem;
+  right: 0;
+  left: 0;
+  height: 1.1rem;
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    rgba(139, 220, 255, 0.52) 0 35%,
+    transparent 38%
+  ) 0 0 / 3.6rem 1.1rem repeat-x;
+  content: "";
+  animation: project-water-ripple 3s ease-in-out infinite alternate;
+}
+
+.project-modal-atmosphere--my-crew-manager {
+  opacity: 0.55;
+  background:
+    linear-gradient(rgba(111, 156, 214, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(111, 156, 214, 0.08) 1px, transparent 1px),
+    radial-gradient(ellipse at 72% 20%, rgba(255, 155, 112, 0.14), transparent 32%);
+  background-size: 2.5rem 2.5rem, 2.5rem 2.5rem, auto;
+  animation: project-board-drift 18s linear infinite;
+}
+
+@keyframes project-rain-fall {
+  to {
+    background-position: -5.2rem 8rem;
+  }
+}
+
+@keyframes project-cloud-drift {
+  from {
+    transform: translateX(-1.5%);
+  }
+  to {
+    transform: translateX(1.5%);
+  }
+}
+
+@keyframes project-lightning-flash {
+  0%,
+  37%,
+  38.5%,
+  40%,
+  100% {
+    opacity: 0;
+  }
+  37.2%,
+  39.2% {
+    opacity: 0.68;
+  }
+}
+
+@keyframes project-lightning-bolt {
+  0%,
+  36.8%,
+  38.2%,
+  39.5%,
+  100% {
+    opacity: 0;
+  }
+  37%,
+  37.6%,
+  39% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes project-flood-rise {
+  0% {
+    height: 0;
+  }
+  100% {
+    height: 50vh;
+  }
+}
+
+@keyframes project-fish-swim {
+  from {
+    transform: translateX(-4rem);
+  }
+  to {
+    transform: translateX(calc(100vw + 4rem));
+  }
+}
+
+@keyframes project-fish-swim-reverse {
+  from {
+    transform: translateX(calc(100vw + 4rem)) scaleX(-1);
+  }
+  to {
+    transform: translateX(-4rem) scaleX(-1);
+  }
+}
+
+@keyframes project-water-ripple {
+  to {
+    transform: translateX(1.8rem);
+    opacity: 0.65;
+  }
+}
+
+@keyframes project-board-drift {
+  to {
+    background-position: 2.5rem 2.5rem, 2.5rem 2.5rem, 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-modal-office-light,
+  .project-modal-office-desk b,
+  .project-modal-office-walker,
+  .project-modal-office-walker b,
+  .project-modal-office-walker::before,
+  .project-modal-office-walker::after,
+  .project-modal-sign-card,
+  .project-modal-sign-particle,
+  .project-modal-sign-scanline {
+    animation: none;
+  }
+
+  .project-modal-office-light,
+  .project-modal-office-desk b,
+  .project-modal-office-walker,
+  .project-modal-office-walker b,
+  .project-modal-office-walker::before,
+  .project-modal-office-walker::after {
+    animation: none;
+  }
+
+  .project-modal-backdrop-rain .project-modal-rain,
+  .project-modal-storm-clouds,
+  .project-modal-lightning-flash,
+  .project-modal-lightning-bolt,
+  .project-modal-rain,
+  .project-modal-floodwater,
+  .project-modal-floodwater::before,
+  .project-modal-fish,
+  .project-modal-atmosphere--my-crew-manager {
+    animation: none;
+  }
+
+  .project-modal-floodwater {
+    height: 50vh;
+    max-height: 50svh;
+  }
+
+  .project-modal-fish--two {
+    animation-name: project-fish-swim;
+  }
+}
+
 .project-modal.is-closing {
   animation: modal-slide-out 0.22s ease both;
 }
 
-.project-modal::before {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 0.25rem;
-  background: linear-gradient(180deg, var(--coral), #e27454);
-  content: "";
+.project-modal-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1.75rem;
+  padding: 2rem 4rem 1.5rem 2.5rem;
+  border-bottom: 0.0625rem solid var(--line);
 }
 
 .project-modal-heading {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding-right: 2rem;
+  min-width: 0;
 }
 
 .project-modal-logo {
-  display: grid;
-  width: 3.125rem;
-  height: 3.125rem;
-  flex: 0 0 3.125rem;
-  place-items: center;
-  border-radius: 0.875rem;
-  border: 0.0625rem solid rgba(255, 155, 112, 0.32);
+  display: block;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 1.25rem;
   object-fit: cover;
-  background: rgba(255, 155, 112, 0.12);
+  border: 0.0625rem solid var(--line);
+  background: rgba(255, 155, 112, 0.08);
 }
 
+.project-modal-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 1.75rem 2.5rem 2.25rem;
+}
+
+.project-modal-image {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: clamp(16rem, 52vh, 30rem);
+  padding: 0.75rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 0.0625rem solid var(--line);
+  border-radius: 0.875rem;
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(158, 140, 255, 0.18),
+      transparent 65%
+    ),
+    rgba(10, 17, 39, 0.9);
+}
+
+.project-modal-shot {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.project-modal-shot.is-loading,
+.project-modal-shot.is-error {
+  min-width: min(22rem, 70vw);
+  border-radius: 0.5rem;
+  background: rgba(238, 245, 255, 0.05);
+}
+
+.project-modal-shot.is-loading img {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.project-modal-shot-loader,
+.project-modal-shot-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: rgba(238, 245, 255, 0.7);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.project-modal-shot-error button {
+  padding: 0.4rem 0.9rem;
+  border: 0.0625rem solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.project-modal-spinner {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0.2rem solid rgba(238, 245, 255, 0.18);
+  border-top-color: #ff9b70;
+  border-radius: 50%;
+  animation: project-modal-spin 0.8s linear infinite;
+}
+
+@keyframes project-modal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.project-modal-image img {
+  display: block;
+  flex: 0 0 auto;
+  width: auto;
+  height: 100%;
+  max-width: none;
+  border-radius: 0.5rem;
+  object-fit: contain;
+}
+
+/* A single image is centered; several scroll horizontally */
+.project-modal-shot:only-child {
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+.project-modal-shot:only-child img {
+  max-width: 100%;
+}
+.project-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.project-modal-link {
+  min-height: 2.5rem;
+  padding: 0 1.25rem;
+  border-radius: 0.5rem;
+}
 .project-modal h2 {
   margin: 0;
   font:
@@ -2803,8 +3760,16 @@ main {
     sans-serif;
 }
 
+.project-modal-category {
+  margin: 0.5rem 0 0;
+  color: var(--coral);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 .project-modal-description {
-  margin: 1.25rem 0 0;
+  margin: 1.5rem 0 0;
   color: var(--muted);
   font-size: 1rem;
   line-height: 1.6;
@@ -2846,19 +3811,21 @@ main {
 }
 
 .project-modal-close {
-  position: absolute;
+  position: sticky;
+  z-index: 2;
   top: 0.75rem;
-  right: 0.875rem;
-  width: 2rem;
-  height: 2rem;
+  align-self: flex-end;
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin: 0.75rem 0.875rem -3rem 0;
   border: 0;
   border-radius: 50%;
-  color: var(--muted);
-  background: transparent;
+  color: var(--ink);
+  background: rgba(8, 13, 31, 0.7);
   cursor: pointer;
   font-size: 1.5rem;
 }
-
 .project-modal-close:hover {
   color: var(--coral);
 }
@@ -2870,6 +3837,49 @@ main {
   }
 
   .project-modal {
-    padding: 1.5rem 1.5rem 1.75rem;
+    width: 94vw;
   }
+
+  .project-modal-header {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem;
+    padding: 1.25rem 3.25rem 1rem 1.25rem;
+  }
+
+  .project-modal-logo {
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: 0.875rem;
+  }
+
+  .project-modal h2 {
+    font-size: 1.5rem;
+  }
+
+  .project-modal-body {
+    padding: 1.25rem 1.25rem 1.5rem;
+  }
+
+  .project-modal-image {
+    height: clamp(11rem, 32vh, 16rem);
+  }
+
+  .project-modal-description {
+    margin-top: 1.25rem;
+    font-size: 0.9375rem;
+  }
+
+  .project-modal-actions {
+    justify-content: stretch;
+  }
+
+  .project-modal-link {
+    width: 100%;
+  }
+}
+.project-modal-role {
+  margin: 0.625rem 0 0;
+  color: var(--text, #f5f7ff);
+  font-size: 1rem;
+  font-weight: 500;
 }

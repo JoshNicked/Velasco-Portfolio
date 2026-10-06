@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { CiFloppyDisk } from "react-icons/ci";
-import { FaLaptopCode } from "react-icons/fa6";
+import { FaJava, FaJs, FaPython } from "react-icons/fa6";
+import { SiDart, SiGit, SiKotlin, SiTypescript } from "react-icons/si";
+import { TbBrandVscode } from "react-icons/tb";
 import "./FolderFloat.css";
 
 const DEFAULT_ITEMS = [
@@ -14,56 +15,72 @@ const PROGRAMMER_ROUTES = [
     path: "M 176 260 H 145 V 140 H 40",
     mobilePath: "M 100 260 H 145 V 140 H 40",
     iconX: "4%",
+    icon: FaPython,
+    anchor: "left",
     iconY: "23.3%",
-  },
-  {
-    path: "M 790 260 H 900 V 30 H 400",
-    mobilePath: "M 900 260 H 950 V 30 H 400",
-    iconX: "40%",
-    iconY: "5%",
   },
   {
     path: "M 824 260 H 930 V 100 H 960",
     mobilePath: "M 900 300 H 970 V 100 H 960",
     iconX: "96%",
+    icon: FaJava,
+    anchor: "right",
     iconY: "16.7%",
   },
   {
     path: "M 176 305 H 110 V 355 H 40",
     mobilePath: "M 100 305 H 110 V 355 H 40",
     iconX: "4%",
+    icon: FaJs,
+    anchor: "left",
     iconY: "59.2%",
   },
   {
     path: "M 176 430 H 40 V 470",
     mobilePath: "M 100 430 H 40 V 470",
     iconX: "4%",
+    icon: SiTypescript,
+    anchor: "below",
     iconY: "78.3%",
+  },
+  {
+    path: "M 824 345 H 960",
+    mobilePath: "M 900 345 H 960",
+    iconX: "96%",
+    icon: SiGit,
+    anchor: "right",
+    iconY: "57.5%",
   },
   {
     path: "M 824 430 H 950 V 470 H 970",
     mobilePath: "M 900 430 H 950 V 470 H 970",
     iconX: "97%",
+    icon: SiDart,
+    anchor: "right",
     iconY: "78.3%",
   },
   {
     path: "M 410 486 V 555 H 350 V 585",
     mobilePath: "M 410 486 V 555 H 350 V 585",
     iconX: "35%",
+    icon: SiKotlin,
+    anchor: "below",
     iconY: "97.5%",
   },
   {
     path: "M 590 486 V 555 H 680 V 585",
     mobilePath: "M 590 486 V 555 H 680 V 585",
     iconX: "68%",
+    icon: TbBrandVscode,
+    anchor: "below",
     iconY: "97.5%",
   },
 ];
 
 function FolderFloat({
   items = DEFAULT_ITEMS,
-  label = "Academic projects",
-  sublabel = "3 projects",
+  label = "Projects",
+  sublabel = "",
   onSelect,
 }) {
   const [open, setOpen] = useState(false);
@@ -72,23 +89,40 @@ function FolderFloat({
     onSelect?.(item.value, index);
   };
 
+  const toggleFolder = (event) => {
+    if (!open) {
+      const folder = event.currentTarget.closest(".folder-float");
+      folder?.style.setProperty("--magnet-x", "0px");
+      folder?.style.setProperty("--magnet-y", "0px");
+    }
+    setOpen((current) => !current);
+  };
+
   return (
-    <div
-      className={`folder-float${open ? " is-open" : ""}`}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-    >
-      <div className="folder-float__items" aria-label="Projects">
+    <div className={`folder-float${open ? " is-open" : ""}`}>
+      <div
+        className="folder-float__items"
+        aria-label="Projects"
+        aria-hidden={!open}
+      >
         {items.slice(0, 4).map((item, index) => (
           <button
             className="folder-float__item"
             key={item.value}
             type="button"
             style={{ "--item-index": index }}
+            tabIndex={open ? 0 : -1}
             onClick={() => choose(item, index)}
             aria-haspopup="dialog"
           >
-            {item.label}
+            {item.logo && (
+              <img
+                className="folder-float__item-logo"
+                src={item.logo}
+                alt=""
+              />
+            )}
+            <span>{item.label}</span>
           </button>
         ))}
       </div>
@@ -128,9 +162,10 @@ function FolderFloat({
           ))}
         </svg>
         {PROGRAMMER_ROUTES.map((route, index) => (
-          <FaLaptopCode
+          <route.icon
             className="folder-float__programmer-icon"
             key={route.path}
+            data-anchor={route.anchor}
             style={{
               "--route-index": index,
               "--icon-x": route.iconX,
@@ -144,8 +179,7 @@ function FolderFloat({
         type="button"
         aria-expanded={open}
         aria-label={`${label}, ${sublabel}`}
-        onFocus={() => setOpen(true)}
-        onBlur={() => setOpen(false)}
+        onClick={toggleFolder}
       >
         <span className="folder-float__back" aria-hidden="true" />
         <span className="folder-float__paper" aria-hidden="true" />
@@ -154,9 +188,8 @@ function FolderFloat({
           <span className="folder-float__sub">{sublabel}</span>
         </span>
       </button>
-      <span className="folder-float__connector" aria-hidden="true">
-        <span className="folder-float__line" />
-        <CiFloppyDisk className="folder-float__icon" />
+      <span className="folder-float__hint" aria-hidden="true">
+        click me
       </span>
     </div>
   );

@@ -4,9 +4,29 @@ import HCaptcha from "@hcaptcha/react-hcaptcha";
 import portfolioPic from "./assets/portfolio_pic.jpg";
 import cvFile from "./assets/Velasco CV.pdf";
 import certificateImage from "./assets/certify.png";
-import floodWatchLogo from "./assets/Flood-Watch.png";
-import auriSignLogo from "./assets/AuriSign.png";
-import myCrewManagerLogo from "./assets/My-Crew-Manager.png";
+import floodWatchLogo from "./assets/floodwatch/Flood-Watch.png";
+import floodWatch1 from "./assets/floodwatch/floodwatch1.jpg";
+import floodWatch2 from "./assets/floodwatch/floodwatch2.jpg";
+import floodWatch3 from "./assets/floodwatch/floodwatch3.png";
+import floodWatch4 from "./assets/floodwatch/floodwatch4.png";
+import floodWatch5 from "./assets/floodwatch/floodwatch5.png";
+import auriSignLogo from "./assets/aurisign/AuriSign.png";
+import auriSign1 from "./assets/aurisign/aurisign1.png";
+import auriSign2 from "./assets/aurisign/aurisign2.png";
+import auriSign3 from "./assets/aurisign/aurisign3.png";
+import auriSign4 from "./assets/aurisign/aurisign4.jpg";
+import auriSign5 from "./assets/aurisign/aurisign5.png";
+import aslSignH from "./assets/aurisign/signs/h.png";
+import aslSignI from "./assets/aurisign/signs/i.png";
+import aslSignR from "./assets/aurisign/signs/r.png";
+import aslSignE from "./assets/aurisign/signs/e.png";
+import aslSignM from "./assets/aurisign/signs/m.png";
+import myCrewManagerLogo from "./assets/mycrewmanager/My-Crew-Manager.png";
+import myCrew1 from "./assets/mycrewmanager/mycrewmanager1.png";
+import myCrew2 from "./assets/mycrewmanager/mycrewmanager2.png";
+import myCrew3 from "./assets/mycrewmanager/mycrewmanager3.png";
+import myCrew4 from "./assets/mycrewmanager/mycrewmanager4.png";
+import myCrew5 from "./assets/mycrewmanager/mycrewmanager5.png";
 import JellyRadio from "./JellyRadio";
 import FlipCard from "./FlipCard";
 import FolderFloat from "./FolderFloat";
@@ -118,6 +138,88 @@ function StackCarousel({ label, items }) {
   );
 }
 
+const IMAGE_MAX_RETRIES = 2;
+
+function ProjectShot({ src, alt }) {
+  const [status, setStatus] = useState("loading");
+  const [attempt, setAttempt] = useState(0);
+  const imgRef = useRef(null);
+
+  useEffect(() => {
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+      setStatus("loaded");
+    }
+  }, []);
+
+  const handleError = () => {
+    if (attempt < IMAGE_MAX_RETRIES) {
+      setAttempt((current) => current + 1);
+      setStatus("loading");
+    } else {
+      setStatus("error");
+    }
+  };
+
+  const retry = () => {
+    setAttempt((current) => current + 1);
+    setStatus("loading");
+  };
+
+  const imageSrc = attempt > 0 ? `${src}${src.includes("?") ? "&" : "?"}retry=${attempt}` : src;
+
+  return (
+    <span className={`project-modal-shot is-${status}`}>
+      {status !== "error" && (
+        <img
+          key={imageSrc}
+          ref={imgRef}
+          src={imageSrc}
+          alt={alt}
+          onLoad={() => setStatus("loaded")}
+          onError={handleError}
+        />
+      )}
+      {status === "loading" && (
+        <span className="project-modal-shot-loader" role="status" aria-label="Loading image">
+          <span className="project-modal-spinner" />
+        </span>
+      )}
+      {status === "error" && (
+        <span className="project-modal-shot-error" role="alert">
+          <span>Image could not be loaded.</span>
+          <button type="button" onClick={retry}>Try again</button>
+        </span>
+      )}
+    </span>
+  );
+}
+
+function ProjectGallery({ title, images }) {
+  return (
+    <div className="project-modal-image" tabIndex={0} aria-label={`${title} screenshots`}>
+      {images.map((src, i) => (
+        <ProjectShot key={src} src={src} alt={`${title} screenshot ${i + 1}`} />
+      ))}
+    </div>
+  );
+}
+
+const aslSignImages = {
+  H: aslSignH,
+  I: aslSignI,
+  R: aslSignR,
+  E: aslSignE,
+  M: aslSignM,
+};
+
+function SignLetterCard({ letter }) {
+  return (
+    <span className={`project-modal-sign-card project-modal-sign-card--${letter.toLowerCase()}`}>
+      <img src={aslSignImages[letter]} alt={`${letter} in ASL fingerspelling`} />
+    </span>
+  );
+}
+
 function App() {
   const [typingComplete, setTypingComplete] = useState(false);
   const [portraitVisible, setPortraitVisible] = useState(false);
@@ -156,23 +258,34 @@ function App() {
 
   const projectDetails = {
     "flood-watch": {
+      theme: "flood-watch",
       logo: floodWatchLogo,
       title: "Flood Watch",
+      role: "Worked as Frontend Developer",
+      category: "Mobile app / Flood monitoring",
+      images: [floodWatch1, floodWatch2, floodWatch3, floodWatch4, floodWatch5],
       description:
         "A Flutter-based mobile application designed to help its users within Brgy. Bonuan Boquig to stay informed about flood conditions and water levels of the area. It combines data from Arduino sensors, and historical flood data to determine and update the current flood levels and future predictions. ",
       tags: ["Alerts", "Monitoring", "Analytics"],
     },
     aurisign: {
+      theme: "aurisign",
       logo: auriSignLogo,
       title: "AuriSign",
+      role: "Worked as Frontend Developer",
       description:
         "An educational cross-platform application that utilizes gesture recognition to assist individual on learning Filipino Sign Language. It contains learning modules on the different FSL signs, and a gesture recognition feature that allows the user to test their knowledge on the learned signs.",
       category: "Product app / Digital signing",
+      images: [auriSign1, auriSign2, auriSign3, auriSign4, auriSign5],
       tags: ["Gesture Recognition", "Cross Platform", "Media Pipeline"],
     },
     "my-crew-manager": {
+      theme: "my-crew-manager",
       logo: myCrewManagerLogo,
       title: "My Crew Manager",
+      role: "Worked as QA Tester",
+      category: "Web app / Project management",
+      images: [myCrew1, myCrew2, myCrew3, myCrew4, myCrew5],
       description:
         "An application that helps organizations and groups to meet their deadline in time. This is by setting up kanban boards for the developers to stay motivated in finishing the project at hand. Moreover, all of this is possible through the use of artificial intelligence that aids the group to finish their projects on time. ",
       tags: ["Scheduling", "Coordination", "Management"],
@@ -201,12 +314,77 @@ function App() {
   };
 
   const closeProjectModal = () => {
+    if (projectModalClosing) return;
     setProjectModalClosing(true);
     window.setTimeout(() => {
       setSelectedProject(null);
       setProjectModalClosing(false);
     }, 220);
   };
+
+  const projectModalOpen = Boolean(selectedProject);
+  const handleWorkPointerMove = (event) => {
+    if (
+      event.pointerType !== "mouse" ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+
+    const folder = event.currentTarget.querySelector(".folder-float");
+    if (!folder) return;
+
+    if (folder.classList.contains("is-open")) {
+      folder.style.setProperty("--magnet-x", "0px");
+      folder.style.setProperty("--magnet-y", "0px");
+      return;
+    }
+
+    const sectionBounds = event.currentTarget.getBoundingClientRect();
+    const folderBounds = folder.getBoundingClientRect();
+    const offsetX =
+      (event.clientX - (folderBounds.left + folderBounds.width / 2)) /
+      (sectionBounds.width / 2);
+    const offsetY =
+      (event.clientY - (folderBounds.top + folderBounds.height / 2)) /
+      (sectionBounds.height / 2);
+    const clamp = (value) => Math.max(-1, Math.min(1, value));
+
+    folder.style.setProperty("--magnet-x", `${clamp(offsetX) * 10}px`);
+    folder.style.setProperty("--magnet-y", `${clamp(offsetY) * 8}px`);
+  };
+  const handleWorkPointerLeave = (event) => {
+    const folder = event.currentTarget.querySelector(".folder-float");
+    folder?.style.setProperty("--magnet-x", "0px");
+    folder?.style.setProperty("--magnet-y", "0px");
+  };
+
+  useEffect(() => {
+    Object.values(projectDetails).forEach((project) => {
+      project.images?.forEach((src) => {
+        new Image().src = src;
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!projectModalOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        document.querySelector(".project-modal-close")?.click();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [projectModalOpen]);
 
   const openContactModal = (event) => {
     contactTriggerRef.current = event.currentTarget;
@@ -692,7 +870,7 @@ function App() {
               >
                 <span>Projects</span>
                 <span className="hero-project-arrow" aria-hidden="true">
-                  →
+                  &rarr;
                 </span>
               </button>
             </div>
@@ -716,7 +894,7 @@ function App() {
           <div className="about-grid">
             <div className="about-intro-block">
               <h2>
-                I’m a passionate <i>developer</i> who enjoys solving problems,
+                I&rsquo;m a passionate <i>developer</i> who enjoys solving problems,
                 creating intuitive UI/UX, and building efficient systems for web
                 and mobile platforms.
               </h2>
@@ -751,10 +929,10 @@ function App() {
           </div>
           <blockquote className="about-quote">
             <p>
-              “Do the best you can until you know better. Then when you know
-              better, do better.”
+              "Do the best you can until you know better. Then when you know
+              better, do better."
             </p>
-            <cite>— Maya Angelou</cite>
+            <cite>- Maya Angelou</cite>
           </blockquote>
         </div>
       </section>
@@ -771,6 +949,7 @@ function App() {
           <div className="experience-card-grid">
             <FlipCard
               className="experience-card"
+              spotlightColor="rgba(0, 229, 255, 0.2)"
               front={
                 <div className="flip-card__content achievement-face">
                   <div>
@@ -901,12 +1080,19 @@ function App() {
         className={`work-section ${visibleSections.includes("work") ? "is-revealed" : ""}`}
         id="work"
         data-reveal="work"
+        onPointerMove={handleWorkPointerMove}
+        onPointerLeave={handleWorkPointerLeave}
       >
         <div className="section-title">
           <p className="eyebrow">projects</p>
         </div>
         <div className="work-body">
           <FolderFloat
+            items={Object.entries(projectDetails).map(([value, project]) => ({
+              value,
+              label: project.title,
+              logo: project.logo,
+            }))}
             onSelect={(value) => setSelectedProject(projectDetails[value])}
           />
         </div>
@@ -914,10 +1100,112 @@ function App() {
 
       {selectedProject && (
         <div
-          className={`project-modal-backdrop ${projectModalClosing ? "is-closing" : ""}`}
+          className={`project-modal-backdrop${selectedProject.theme ? ` project-modal-backdrop--${selectedProject.theme}` : ""} ${projectModalClosing ? "is-closing" : ""}`}
           role="presentation"
           onClick={closeProjectModal}
         >
+          {selectedProject.theme === "flood-watch" && (
+            <>
+              <div className="project-modal-backdrop-rain" aria-hidden="true">
+                <span className="project-modal-storm-clouds" />
+                <span className="project-modal-lightning-flash" />
+                <span className="project-modal-lightning-bolt project-modal-lightning-bolt--one" />
+                <span className="project-modal-lightning-bolt project-modal-lightning-bolt--two" />
+                <span className="project-modal-rain project-modal-rain--back" />
+                <span className="project-modal-rain project-modal-rain--front" />
+              </div>
+              <div className="project-modal-floodwater" aria-hidden="true">
+                <span className="project-modal-fish project-modal-fish--one">
+                  <svg viewBox="0 0 100 48" focusable="false">
+                    <path className="project-modal-fish-tail" d="M27 24 5 7v34l22-17Z" />
+                    <path className="project-modal-fish-body" d="M19 24C35 3 70 5 87 24 70 43 35 45 19 24Z" />
+                    <path className="project-modal-fish-fin" d="m48 10 10-8 9 9M47 38l11 8 9-9" />
+                    <path className="project-modal-fish-gill" d="M70 15c-6 5-6 14 0 19" />
+                    <circle className="project-modal-fish-eye" cx="78" cy="21" r="2.2" />
+                  </svg>
+                </span>
+                <span className="project-modal-fish project-modal-fish--two">
+                  <svg viewBox="0 0 100 48" focusable="false">
+                    <path className="project-modal-fish-tail" d="M27 24 5 7v34l22-17Z" />
+                    <path className="project-modal-fish-body" d="M19 24C35 3 70 5 87 24 70 43 35 45 19 24Z" />
+                    <path className="project-modal-fish-fin" d="m48 10 10-8 9 9M47 38l11 8 9-9" />
+                    <path className="project-modal-fish-gill" d="M70 15c-6 5-6 14 0 19" />
+                    <circle className="project-modal-fish-eye" cx="78" cy="21" r="2.2" />
+                  </svg>
+                </span>
+                <span className="project-modal-fish project-modal-fish--three">
+                  <svg viewBox="0 0 100 48" focusable="false">
+                    <path className="project-modal-fish-tail" d="M27 24 5 7v34l22-17Z" />
+                    <path className="project-modal-fish-body" d="M19 24C35 3 70 5 87 24 70 43 35 45 19 24Z" />
+                    <path className="project-modal-fish-fin" d="m48 10 10-8 9 9M47 38l11 8 9-9" />
+                    <path className="project-modal-fish-gill" d="M70 15c-6 5-6 14 0 19" />
+                    <circle className="project-modal-fish-eye" cx="78" cy="21" r="2.2" />
+                  </svg>
+                </span>
+              </div>
+            </>
+          )}
+          {selectedProject.theme === "my-crew-manager" && (
+            <div className="project-modal-office" aria-hidden="true">
+              <span className="project-modal-office-window" />
+              <span className="project-modal-office-light" />
+              <span className="project-modal-office-worker project-modal-office-worker--one">
+                <i />
+                <b />
+              </span>
+              <span className="project-modal-office-worker project-modal-office-worker--two">
+                <i />
+                <b />
+              </span>
+              <span className="project-modal-office-worker project-modal-office-worker--three">
+                <i />
+                <b />
+              </span>
+              <span className="project-modal-office-desk project-modal-office-desk--one">
+                <i />
+                <b />
+              </span>
+              <span className="project-modal-office-desk project-modal-office-desk--two">
+                <i />
+                <b />
+              </span>
+              <span className="project-modal-office-desk project-modal-office-desk--three">
+                <i />
+                <b />
+              </span>
+              <span className="project-modal-office-walker">
+                <i />
+                <b />
+              </span>
+            </div>
+          )}
+          {selectedProject.theme === "aurisign" && (
+            <div
+              className="project-modal-sign-scene"
+              role="img"
+              aria-label="Hire me, fingerspelled in American Sign Language as H, I, R, E, M, E."
+            >
+              <span className="project-modal-sign-orbit project-modal-sign-orbit--one" />
+              <span className="project-modal-sign-orbit project-modal-sign-orbit--two" />
+              <span className="project-modal-sign-particle project-modal-sign-particle--one" />
+              <span className="project-modal-sign-particle project-modal-sign-particle--two" />
+              <span className="project-modal-sign-particle project-modal-sign-particle--three" />
+              <span className="project-modal-sign-particle project-modal-sign-particle--four" />
+              <div className="project-modal-sign-sequence" aria-hidden="true">
+                <div className="project-modal-sign-column project-modal-sign-column--hire">
+                  <SignLetterCard letter="H" />
+                  <SignLetterCard letter="I" />
+                  <SignLetterCard letter="R" />
+                  <SignLetterCard letter="E" />
+                </div>
+                <div className="project-modal-sign-column project-modal-sign-column--me">
+                  <SignLetterCard letter="M" />
+                  <SignLetterCard letter="E" />
+                </div>
+              </div>
+              <span className="project-modal-sign-scanline" />
+            </div>
+          )}
           <div
             className={`project-modal ${projectModalClosing ? "is-closing" : ""}`}
             role="dialog"
@@ -934,21 +1222,52 @@ function App() {
             >
               &times;
             </button>
-            <div className="project-modal-heading">
+            <div className="project-modal-header">
               <img
                 className="project-modal-logo"
                 src={selectedProject.logo}
-                alt=""
+                alt={`${selectedProject.title} logo`}
               />
-              <h2 id="project-modal-title">{selectedProject.title}</h2>
+              <div className="project-modal-heading">
+                <h2 id="project-modal-title">{selectedProject.title}</h2>
+                <p className="project-modal-category">
+                  {selectedProject.category}
+                </p>
+                {selectedProject.role && (
+                  <p className="project-modal-role">{selectedProject.role}</p>
+                )}
+              </div>
             </div>
-            <p className="project-modal-description">
-              {selectedProject.description}
-            </p>
-            <div className="project-modal-tags">
-              {selectedProject.tags.map((tag) => (
-                <span key={tag}>{tag}</span>
-              ))}
+            <div className="project-modal-body">
+              <ProjectGallery
+                key={selectedProject.title}
+                title={selectedProject.title}
+                images={
+                  selectedProject.images ?? [
+                    selectedProject.image ?? selectedProject.logo,
+                  ]
+                }
+              />
+              <p className="project-modal-description">
+                {selectedProject.description}
+              </p>
+              <div className="project-modal-tags">
+                {selectedProject.tags.map((tag) => (
+                  <span key={tag}>{tag}</span>
+                ))}
+              </div>
+              {selectedProject.link && (
+                <div className="project-modal-actions">
+                  <a
+                    className="cv-modal-button cv-modal-button-primary project-modal-link"
+                    href={selectedProject.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {selectedProject.linkLabel ?? "View project"}
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -971,7 +1290,7 @@ function App() {
               <div className="contact-copy">
                 <h2>Let's work, grow and innovate together</h2>
                 <p>
-                  I’m Available for Frontend work, QA Testing, Software
+                  I'm Available for Frontend work, QA Testing, Software
                   Development, and Collaborative Projects.
                 </p>
               </div>
@@ -1058,21 +1377,6 @@ function App() {
                   autoComplete="off"
                   aria-hidden="true"
                 />
-                <div className="contact-captcha-field">
-                  <HCaptcha
-                    ref={contactCaptchaRef}
-                    sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2"
-                    reCaptchaCompat={false}
-                    onVerify={handleCaptchaVerify}
-                    onExpire={handleCaptchaExpire}
-                    onError={handleCaptchaFailure}
-                  />
-                  {contactErrors.captcha && (
-                    <span className="contact-field-error" role="alert">
-                      {contactErrors.captcha}
-                    </span>
-                  )}
-                </div>
                 <div className="contact-form-field">
                   <label htmlFor="contact-name">Name</label>
                   <input
@@ -1146,9 +1450,24 @@ function App() {
                     </span>
                   )}
                 </div>
+                <div className="contact-captcha-field">
+                  <HCaptcha
+                    ref={contactCaptchaRef}
+                    sitekey="50b2fe65-b00b-4b9e-ad62-3ba471098be2"
+                    reCaptchaCompat={false}
+                    onVerify={handleCaptchaVerify}
+                    onExpire={handleCaptchaExpire}
+                    onError={handleCaptchaFailure}
+                  />
+                  {contactErrors.captcha && (
+                    <span className="contact-field-error" role="alert">
+                      {contactErrors.captcha}
+                    </span>
+                  )}
+                </div>
                 {contactResult === "success" && (
                   <p className="contact-form-result is-success" role="status">
-                    Your message has been sent successfully. I’ll get back to you as soon as possible.
+                    Your message has been sent successfully. Iâ€™ll get back to you as soon as possible.
                   </p>
                 )}
                 {contactResult === "error" && (

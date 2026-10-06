@@ -53,6 +53,15 @@
   transform: rotateY(180deg);
 }
 
+/* Keep the face layout when SpotlightCard styles are applied */
+.flip-card__face.card-spotlight {
+  position: absolute;
+  padding: 0;
+  border: 0.0625rem solid rgba(163, 190, 231, 0.28);
+  border-radius: var(--fc-radius);
+  background-color: var(--fc-bg);
+}
+
 .flip-card__content {
   display: flex;
   width: 100%;

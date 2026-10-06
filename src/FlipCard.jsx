@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
+import SpotlightCard from "./SpotlightCard";
 import "./FlipCard.css";
 
 function FlipCard({
@@ -11,6 +12,7 @@ function FlipCard({
   background = "#111a39",
   color = "#eef5ff",
   className = "",
+  spotlightColor,
 }) {
   const [flipped, setFlipped] = useState(false);
 
@@ -45,8 +47,27 @@ function FlipCard({
         animate={{ rotateY: flipped ? 180 : 0 }}
         transition={{ type: "spring", stiffness: 170, damping: 20 }}
       >
-        <div className="flip-card__face flip-card__face--front">{front}</div>
-        <div className="flip-card__face flip-card__face--back">{back}</div>
+        {spotlightColor ? (
+          <>
+            <SpotlightCard
+              className="flip-card__face flip-card__face--front"
+              spotlightColor={spotlightColor}
+            >
+              {front}
+            </SpotlightCard>
+            <SpotlightCard
+              className="flip-card__face flip-card__face--back"
+              spotlightColor={spotlightColor}
+            >
+              {back}
+            </SpotlightCard>
+          </>
+        ) : (
+          <>
+            <div className="flip-card__face flip-card__face--front">{front}</div>
+            <div className="flip-card__face flip-card__face--back">{back}</div>
+          </>
+        )}
       </motion.div>
     </div>
   );
