@@ -501,13 +501,13 @@
 
 @media (max-width: 43.75rem) {
   .folder-float {
-    --folder-width: min(82vw, 20rem);
+    --folder-width: clamp(9rem, calc(100vw - 7.5rem), 20rem);
     --folder-height: 12rem;
   }
 
   .folder-float__routes {
-    right: -2.25rem;
-    left: -2.25rem;
+    right: -0.5rem;
+    left: -0.5rem;
   }
 
   .folder-float__route-desktop {

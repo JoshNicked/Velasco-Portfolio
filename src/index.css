@@ -24,7 +24,7 @@ body,
 }
 body {
   margin: 0;
-  min-width: 20rem;
+  min-width: 0;
 }
 a {
   color: inherit;

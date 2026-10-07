@@ -220,6 +220,18 @@ function SignLetterCard({ letter }) {
   );
 }
 
+const CONTACT_COOLDOWN_KEY = "contactLastSentAt";
+const CONTACT_COOLDOWN_MS = 2 * 24 * 60 * 60 * 1000;
+
+function isContactCooldownActive() {
+  try {
+    const lastSent = Number(localStorage.getItem(CONTACT_COOLDOWN_KEY));
+    return lastSent > 0 && Date.now() - lastSent < CONTACT_COOLDOWN_MS;
+  } catch {
+    return false;
+  }
+}
+
 function App() {
   const [typingComplete, setTypingComplete] = useState(false);
   const [portraitVisible, setPortraitVisible] = useState(false);
@@ -248,6 +260,7 @@ function App() {
   const [contactModalClosing, setContactModalClosing] = useState(false);
   const [contactSubmitting, setContactSubmitting] = useState(false);
   const [contactResult, setContactResult] = useState("");
+  const [contactLocked, setContactLocked] = useState(isContactCooldownActive);
   const [contactErrors, setContactErrors] = useState({});
   const [contactCaptchaToken, setContactCaptchaToken] = useState("");
   const contactTriggerRef = useRef(null);
@@ -432,6 +445,10 @@ function App() {
     setContactErrors(errors);
     setContactResult("");
     if (Object.keys(errors).length > 0) return;
+    if (isContactCooldownActive()) {
+      setContactLocked(true);
+      return;
+    }
 
     const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
     if (!accessKey) {
@@ -457,6 +474,12 @@ function App() {
 
       if (!response.ok || !result.success) throw new Error("Submission failed");
       form.reset();
+      try {
+        localStorage.setItem(CONTACT_COOLDOWN_KEY, String(Date.now()));
+      } catch {
+        // Storage unavailable; the in-memory lock below still applies.
+      }
+      setContactLocked(true);
       setContactResult("success");
     } catch {
       setContactResult("error");
@@ -683,6 +706,53 @@ function App() {
     return () => observer.disconnect();
   }, []);
 
+  // Shrink the About content (never the background) so it fits inside one viewport-sized section.
+  useEffect(() => {
+    const section = aboutRef.current;
+    const content = section?.querySelector(".about-page-content");
+    if (!section || !content) return undefined;
+
+    const fits = (scale) => {
+      content.style.width = scale < 1 ? `${100 / scale}%` : "";
+      content.style.scale = scale < 1 ? String(scale) : "";
+      const available =
+        section.clientHeight -
+        (parseFloat(getComputedStyle(section).paddingBottom) || 0) -
+        content.offsetTop;
+      return content.offsetHeight * scale <= available + 0.5;
+    };
+
+    const fit = () => {
+      content.style.transformOrigin = "0 0";
+      if (fits(1)) return;
+      let low = 0.25;
+      let high = 1;
+      for (let i = 0; i < 9; i += 1) {
+        const mid = (low + high) / 2;
+        if (fits(mid)) low = mid;
+        else high = mid;
+      }
+      fits(low);
+    };
+
+    fit();
+    const settleTimers = [
+      window.setTimeout(fit, 400),
+      window.setTimeout(fit, 2300),
+    ];
+    document.fonts?.ready.then(fit);
+    window.addEventListener("resize", fit);
+    window.addEventListener("orientationchange", fit);
+    return () => {
+      settleTimers.forEach((timer) => window.clearTimeout(timer));
+      window.removeEventListener("resize", fit);
+      window.removeEventListener("orientationchange", fit);
+      content.style.width = "";
+      content.style.scale = "";
+      content.style.transformOrigin = "";
+    };
+  }, []);
+
   useEffect(() => {
     const observedSections = [
       { id: "top", element: heroRef.current },
@@ -692,27 +762,31 @@ function App() {
       { id: "contact", element: document.getElementById("contact") },
     ].filter((section) => section.element);
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (navTargetRef.current) return;
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort(
-            (first, second) =>
-              second.intersectionRatio - first.intersectionRatio,
-          );
+    const updateActiveNav = () => {
+      const marker = window.innerHeight * 0.18;
+      const current = observedSections
+        .filter(
+          (section) =>
+            section.element.getBoundingClientRect().top <= marker + 1,
+        )
+        .pop();
+      const atBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2;
+      const last = observedSections[observedSections.length - 1];
+      const next = atBottom ? last : current;
+      if (next) setActiveNav(next.id);
+    };
 
-        if (visible[0]) {
-          const current = observedSections.find(
-            (section) => section.element === visible[0].target,
-          );
-          if (current) setActiveNav(current.id);
-        }
+    const observer = new IntersectionObserver(
+      () => {
+        if (!navTargetRef.current) updateActiveNav();
       },
-      { threshold: [0.2, 0.5, 0.8], rootMargin: "-18% 0px -45% 0px" },
+      { threshold: 0, rootMargin: "-18% 0px -45% 0px" },
     );
 
     observedSections.forEach((section) => observer.observe(section.element));
+    updateActiveNav();
 
     // Release the click-navigation lock once the destination is reached,
     // or when the user takes over scrolling manually.
@@ -732,19 +806,26 @@ function App() {
     };
     const handleScroll = () => {
       const targetId = navTargetRef.current;
-      if (!targetId) return;
+      if (!targetId) {
+        updateActiveNav();
+        return;
+      }
       const target = observedSections.find((section) => section.id === targetId);
       const atBottom =
         window.innerHeight + window.scrollY >=
         document.documentElement.scrollHeight - 2;
       const top = targetId === "top" ? window.scrollY : target?.element.getBoundingClientRect().top;
       const targetIsLast = target === observedSections[observedSections.length - 1];
-      if ((atBottom && targetIsLast) || Math.abs(top ?? 0) <= 2) navTargetRef.current = null;
+      if ((atBottom && targetIsLast) || Math.abs(top ?? 0) <= 2) {
+        navTargetRef.current = null;
+        updateActiveNav();
+      }
     };
     const cancelLock = () => releaseLock();
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("scrollend", handleScroll);
+    window.addEventListener("resize", updateActiveNav);
     window.addEventListener("wheel", cancelLock, { passive: true });
     window.addEventListener("touchstart", cancelLock, { passive: true });
     window.addEventListener("keydown", cancelLock);
@@ -752,6 +833,7 @@ function App() {
       observer.disconnect();
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("scrollend", handleScroll);
+      window.removeEventListener("resize", updateActiveNav);
       window.removeEventListener("wheel", cancelLock);
       window.removeEventListener("touchstart", cancelLock);
       window.removeEventListener("keydown", cancelLock);
@@ -1325,11 +1407,11 @@ function App() {
                   </a>
                   <a
                     className="social-link-text"
-                    href="https://www.whatsapp.com/"
+                    href="https://jnvglobal.slack.com"
                     target="_blank"
                     rel="noreferrer"
                   >
-                    WhatsApp
+                    Slack
                   </a>
                 </div>
               </div>
@@ -1467,7 +1549,7 @@ function App() {
                 </div>
                 {contactResult === "success" && (
                   <p className="contact-form-result is-success" role="status">
-                    Your message has been sent successfully. Iâ€™ll get back to you as soon as possible.
+                    Your message has been sent successfully. I'll get back to you as soon as possible.
                   </p>
                 )}
                 {contactResult === "error" && (
@@ -1478,11 +1560,11 @@ function App() {
                 <button
                   className="contact-form-submit"
                   type="submit"
-                  disabled={contactSubmitting || contactResult === "success"}
+                  disabled={contactSubmitting || contactLocked}
                 >
                   {contactSubmitting
                     ? "Sending..."
-                    : contactResult === "success"
+                    : contactLocked
                       ? "Message Sent!"
                       : "Send Message"}
                 </button>
