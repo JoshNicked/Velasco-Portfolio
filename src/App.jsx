@@ -3,7 +3,24 @@ import { createPortal } from "react-dom";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import portfolioPic from "./assets/portfolio_pic.jpg";
 import cvFile from "./assets/Velasco CV.pdf";
-import certificateImage from "./assets/certify.png";
+import certificateImage from "./assets/certificates/certify.png";
+import ibmCertificateImage from "./assets/certificates/certify-ibm.png";
+
+const certificates = [
+  {
+    title: "Cloud Programming Certificate - Zuitt",
+    image: certificateImage,
+    description:
+      "Completed a certification in cloud programming from Zuitt, a bootcamp that teaches the core principles of Amazon Web Services.",
+  },
+  {
+    title: "Python for Data Science, AI & Development - IBM",
+    image: ibmCertificateImage,
+    description:
+      "Completed Python for Data Science, AI & Development, an online course authorized by IBM and offered through Coursera (Dec 10, 2023). ",
+    link: "https://coursera.org/verify/YZCT2B6ZY8BD",
+  },
+];
 import floodWatchLogo from "./assets/floodwatch/Flood-Watch.png";
 import floodWatch1 from "./assets/floodwatch/floodwatch1.jpg";
 import floodWatch2 from "./assets/floodwatch/floodwatch2.jpg";
@@ -252,6 +269,7 @@ function App() {
   const aboutRef = useRef(null);
   const [aboutHasBeenViewed, setAboutHasBeenViewed] = useState(false);
   const [aboutInView, setAboutInView] = useState(false);
+  const [selectedCertificate, setSelectedCertificate] = useState(certificates[0]);
   const [certificateModalOpen, setCertificateModalOpen] = useState(false);
   const [certificateModalClosing, setCertificateModalClosing] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
@@ -263,6 +281,7 @@ function App() {
   const [contactLocked, setContactLocked] = useState(isContactCooldownActive);
   const [contactErrors, setContactErrors] = useState({});
   const [contactCaptchaToken, setContactCaptchaToken] = useState("");
+  const [contactPrivacyInfoOpen, setContactPrivacyInfoOpen] = useState(false);
   const contactTriggerRef = useRef(null);
   const contactDialogRef = useRef(null);
   const contactNameRef = useRef(null);
@@ -405,6 +424,7 @@ function App() {
     setContactResult("");
     setContactErrors({});
     setContactCaptchaToken("");
+    setContactPrivacyInfoOpen(false);
     setContactModalOpen(true);
   };
 
@@ -427,6 +447,7 @@ function App() {
     const subject = String(formData.get("subject") || "").trim();
     const message = String(formData.get("message") || "").trim();
     const captchaResponse = contactCaptchaToken.trim();
+    const hasPrivacyConsent = formData.get("privacyConsent") === "yes";
     const errors = {};
 
     if (!name) errors.name = "Please enter your name.";
@@ -439,6 +460,9 @@ function App() {
     if (!message) errors.message = "Please enter a message.";
     if (message.length > maxContactMessageLength) {
       errors.message = `Please keep your message under ${maxContactMessageLength.toLocaleString()} characters.`;
+    }
+    if (!hasPrivacyConsent) {
+      errors.privacyConsent = "Please acknowledge the IP address notice before sending.";
     }
     if (!captchaResponse) errors.captcha = "Please complete the security check.";
 
@@ -463,6 +487,7 @@ function App() {
     formData.set("subject", subject);
     formData.set("message", message);
     formData.set("h-captcha-response", captchaResponse);
+    formData.delete("privacyConsent");
 
     setContactSubmitting(true);
     try {
@@ -1070,17 +1095,37 @@ function App() {
             <div className="certifications-card-wrap">
               <p className="certifications-title">Certifications</p>
               <div className="certifications-card">
-                <button
-                  className="certificate-preview"
-                  type="button"
-                  onClick={() => setCertificateModalOpen(true)}
-                  aria-label="View certificate larger"
-                >
-                  <img src={certificateImage} alt="Certificate preview" />
-                </button>
-                <p className="certificate-description">
-                  Completed a certification in cloud programming from Zuitt, a bootcamp that teaches the core principles of Amazon Web Services. 
-                </p>
+                {certificates.map((certificate) => (
+                  <div className="certificate-item" key={certificate.title}>
+                    <button
+                      className="certificate-preview"
+                      type="button"
+                      onClick={() => {
+                        setSelectedCertificate(certificate);
+                        setCertificateModalOpen(true);
+                      }}
+                      aria-label={`View ${certificate.title} larger`}
+                    >
+                      <img src={certificate.image} alt={certificate.title} />
+                    </button>
+                    <p className="certificate-description">
+                      {certificate.description}
+                      {certificate.link && (
+                        <>
+                          {" "}
+                          <a
+                            className="certificate-link"
+                            href={certificate.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Verify certificate
+                          </a>
+                        </>
+                      )}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -1108,7 +1153,7 @@ function App() {
             >
               &times;
             </button>
-            <img src={certificateImage} alt="Certificate" />
+            <img src={selectedCertificate.image} alt={selectedCertificate.title} />
           </div>
         </div>
       )}
@@ -1407,11 +1452,11 @@ function App() {
                   </a>
                   <a
                     className="social-link-text"
-                    href="https://jnvglobal.slack.com"
+                    href="https://github.com/JoshNicked"
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Slack
+                    GitHub
                   </a>
                 </div>
               </div>
@@ -1529,6 +1574,61 @@ function App() {
                   {contactErrors.message && (
                     <span className="contact-field-error" id="contact-message-error">
                       {contactErrors.message}
+                    </span>
+                  )}
+                </div>
+                <div className="contact-consent-field">
+                  <div className="contact-consent">
+                    <label
+                      className="contact-consent-label"
+                      htmlFor="contact-privacy-consent"
+                    >
+                      <input
+                        id="contact-privacy-consent"
+                        name="privacyConsent"
+                        type="checkbox"
+                        value="yes"
+                        required
+                        aria-invalid={Boolean(contactErrors.privacyConsent)}
+                        aria-describedby={
+                          contactErrors.privacyConsent
+                            ? "contact-privacy-consent-error"
+                            : undefined
+                        }
+                        onChange={() => clearContactFeedback("privacyConsent")}
+                      />
+                      <span>
+                        I understand that my IP address may be processed for
+                        spam prevention and security.
+                      </span>
+                    </label>
+                    <button
+                      className="contact-consent-info"
+                      type="button"
+                      aria-label="More about IP address processing"
+                      aria-expanded={contactPrivacyInfoOpen}
+                      aria-controls="contact-privacy-notice"
+                      onClick={() => setContactPrivacyInfoOpen((open) => !open)}
+                    >
+                      i
+                    </button>
+                  </div>
+                  {contactPrivacyInfoOpen && (
+                    <p
+                      className="contact-consent-notice"
+                      id="contact-privacy-notice"
+                    >
+                      Your IP address may be processed by our form service for
+                      spam prevention and security purposes. It is not used for
+                      marketing.
+                    </p>
+                  )}
+                  {contactErrors.privacyConsent && (
+                    <span
+                      className="contact-field-error"
+                      id="contact-privacy-consent-error"
+                    >
+                      {contactErrors.privacyConsent}
                     </span>
                   )}
                 </div>

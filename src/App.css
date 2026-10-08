@@ -1029,6 +1029,8 @@ main {
 .contact-modal-close:focus-visible,
 .contact-form input:focus-visible,
 .contact-form textarea:focus-visible,
+.contact-consent input:focus-visible,
+.contact-consent-info:focus-visible,
 .contact-form-submit:focus-visible {
   outline: 0.125rem solid var(--coral);
   outline-offset: 0.1875rem;
@@ -1208,10 +1210,69 @@ main {
   gap: 1rem;
 }
 .contact-form-message,
+.contact-consent-field,
 .contact-captcha-field,
 .contact-form-result,
 .contact-form-submit {
   grid-column: 1 / -1;
+}
+.contact-consent-field {
+  display: grid;
+  gap: 0.4375rem;
+}
+.contact-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+.contact-consent-label {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.625rem;
+  cursor: pointer;
+}
+.contact-consent-label input {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  margin: 0.125rem 0 0;
+  accent-color: var(--coral);
+  cursor: pointer;
+}
+.contact-consent-info {
+  display: grid;
+  width: 1.125rem;
+  height: 1.125rem;
+  flex: 0 0 auto;
+  place-items: center;
+  margin-top: 0.1875rem;
+  padding: 0;
+  border: 0.0625rem solid var(--line);
+  border-radius: 50%;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  font: italic 600 0.6875rem/1 "DM Sans", sans-serif;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.contact-consent-info:hover,
+.contact-consent-info[aria-expanded="true"] {
+  border-color: var(--coral);
+  color: var(--coral);
+}
+.contact-consent-notice {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 0.0625rem solid var(--line);
+  border-radius: 0.5rem;
+  color: var(--muted);
+  background: rgba(8, 13, 31, 0.52);
+  font-size: 0.75rem;
+  line-height: 1.5;
 }
 .contact-captcha-field {
   display: grid;
@@ -2261,7 +2322,9 @@ main {
   flex-direction: column;
   gap: 0.75rem;
   align-self: start;
-  height: auto;
+  margin-top: 0.8rem;
+  height: min(34rem, 56vh);
+  min-height: 0;
   opacity: 0;
   transform: translateX(4rem);
   transition:
@@ -2285,9 +2348,15 @@ main {
 
 .certifications-card {
   display: flex;
+  flex: 1;
+  min-height: 0;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
   padding: 1.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--coral) transparent;
   border: 0.0625rem solid rgba(163, 190, 231, 0.24);
   border-radius: 1.25rem;
   background: linear-gradient(
@@ -2296,7 +2365,18 @@ main {
     rgba(8, 13, 31, 0.78)
   );
   box-shadow: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.28);
-  overflow: hidden;
+}
+
+.certificate-item {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.certificate-item + .certificate-item {
+  padding-top: 1.5rem;
+  border-top: 0.0625rem solid rgba(163, 190, 231, 0.18);
 }
 
 .certificate-preview {
@@ -2332,6 +2412,17 @@ main {
   color: var(--muted);
   font-size: 0.8125rem;
   line-height: 1.55;
+}
+
+.certificate-link {
+  color: var(--coral);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  overflow-wrap: anywhere;
+}
+
+.certificate-link:hover {
+  text-decoration-thickness: 0.125rem;
 }
 
 .experience-error-code {
@@ -2548,7 +2639,8 @@ main {
 
   .certifications-card-wrap {
     max-width: none;
-    height: auto;
+    margin-top: 0;
+    height: clamp(28rem, 120vw, 34rem);
   }
 
   .achievement-item {
@@ -2567,7 +2659,8 @@ main {
 }
 
 @media (max-width: 23rem) {
-  .experience-card {
+  .experience-card,
+  .certifications-card-wrap {
     height: 33rem;
   }
 }
