@@ -1,6 +1,31 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
+import {
+  FaAws,
+  FaBook,
+  FaCamera,
+  FaChessPawn,
+  FaGamepad,
+  FaJava,
+  FaLightbulb,
+} from "react-icons/fa6";
+import {
+  SiAndroidstudio,
+  SiDart,
+  SiExpress,
+  SiFlutter,
+  SiGithub,
+  SiJavascript,
+  SiKotlin,
+  SiMongodb,
+  SiNodedotjs,
+  SiPython,
+  SiReact,
+  SiTypescript,
+  SiVite,
+} from "react-icons/si";
+import { TbBrandCSharp, TbBrandVscode } from "react-icons/tb";
 import portfolioPic from "./assets/portfolio_pic.jpg";
 import cvFile from "./assets/Velasco CV.pdf";
 import certificateImage from "./assets/certificates/certify.png";
@@ -140,6 +165,35 @@ const stackGroups = [
   },
 ];
 
+const stackLogos = {
+  GitHub: [{ Icon: SiGithub, color: "#f0f6fc" }],
+  React: [{ Icon: SiReact, color: "#61dafb" }],
+  Vite: [{ Icon: SiVite, color: "#646cff" }],
+  "MERN Stack": [
+    { Icon: SiMongodb, color: "#47a248" },
+    { Icon: SiExpress, color: "#f0f6fc" },
+    { Icon: SiReact, color: "#61dafb" },
+    { Icon: SiNodedotjs, color: "#5fa04e" },
+  ],
+  MongoDB: [{ Icon: SiMongodb, color: "#47a248" }],
+  AWS: [{ Icon: FaAws, color: "#ff9900" }],
+  Flutter: [{ Icon: SiFlutter, color: "#02569b" }],
+  "Visual Studio Code": [{ Icon: TbBrandVscode, color: "#007acc" }],
+  "Android Studio": [{ Icon: SiAndroidstudio, color: "#3ddc84" }],
+  Python: [{ Icon: SiPython, color: "#3776ab" }],
+  Java: [{ Icon: FaJava, color: "#ed8b00" }],
+  JavaScript: [{ Icon: SiJavascript, color: "#f7df1e" }],
+  TypeScript: [{ Icon: SiTypescript, color: "#3178c6" }],
+  "C#": [{ Icon: TbBrandCSharp, color: "#9b4f96" }],
+  Dart: [{ Icon: SiDart, color: "#0175c2" }],
+  Kotlin: [{ Icon: SiKotlin, color: "#7f52ff" }],
+  Gaming: [{ Icon: FaGamepad, color: "#2f7bf5" }],
+  Chess: [{ Icon: FaChessPawn, color: "#e8e1d0" }],
+  Photography: [{ Icon: FaCamera, color: "#ff9b70" }],
+  "Problem Solving": [{ Icon: FaLightbulb, color: "#ffd84d" }],
+  Learning: [{ Icon: FaBook, color: "#6fd3a0" }],
+};
+
 function StackCarousel({ label, items }) {
   return (
     <div className="stack-group">
@@ -147,6 +201,17 @@ function StackCarousel({ label, items }) {
       <div className="stack-space" aria-label={`${label} list`}>
         {items.map(([name], index) => (
           <span className="stack-item" key={`${name}-${index}`}>
+            {stackLogos[name] && (
+              <span className="stack-item-logos" aria-hidden="true">
+                {stackLogos[name].map(({ Icon, color }, logoIndex) => (
+                  <Icon
+                    className="stack-item-logo"
+                    key={`${name}-logo-${logoIndex}`}
+                    style={{ color }}
+                  />
+                ))}
+              </span>
+            )}
             <span className="stack-item-name">{name}</span>
           </span>
         ))}
@@ -1016,6 +1081,15 @@ function App() {
                     "Learning",
                   ].map((hobby) => (
                     <span className="stack-item" key={hobby}>
+                      <span className="stack-item-logos" aria-hidden="true">
+                        {stackLogos[hobby].map(({ Icon, color }) => (
+                          <Icon
+                            className="stack-item-logo"
+                            key={hobby}
+                            style={{ color }}
+                          />
+                        ))}
+                      </span>
                       <span className="stack-item-name">{hobby}</span>
                     </span>
                   ))}
